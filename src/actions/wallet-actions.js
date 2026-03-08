@@ -16,28 +16,48 @@ export async function getWallets() {
         .where(eq(wallets.userId, session.user.id))
         .orderBy(wallets.createdAt);
 
-    const walletsWithBalance = await Promise.all(
-        userWallets.map(async (wallet) => {
-            const balance = await getWalletBalance(wallet.id);
-            return { ...wallet, balance };
-        })
-    );
+    if (userWallets.length === 0) return [];
 
-    return walletsWithBalance;
-}
-
-export async function getWalletBalance(walletId) {
-    const result = await db
+    // Fetch all balances in a single query instead of N+1
+    const walletIds = userWallets.map((w) => w.id);
+    const balanceResults = await db
         .select({
-            income: sql`COALESCE(SUM(CASE WHEN ${transactions.type} = 'income' THEN ${transactions.amount} WHEN ${transactions.type} = 'transfer' AND ${transactions.toWalletId} = ${walletId} THEN ${transactions.amount} ELSE 0 END), 0)`,
-            expense: sql`COALESCE(SUM(CASE WHEN ${transactions.type} = 'expense' THEN ${transactions.amount} WHEN ${transactions.type} = 'transfer' AND ${transactions.walletId} = ${walletId} THEN ${transactions.amount} ELSE 0 END), 0)`,
+            walletId: transactions.walletId,
+            income: sql`COALESCE(SUM(CASE WHEN ${transactions.type} = 'income' THEN ${transactions.amount} ELSE 0 END), 0)`,
+            expense: sql`COALESCE(SUM(CASE WHEN ${transactions.type} = 'expense' THEN ${transactions.amount} ELSE 0 END), 0)`,
+            transferOut: sql`COALESCE(SUM(CASE WHEN ${transactions.type} = 'transfer' THEN ${transactions.amount} ELSE 0 END), 0)`,
+        })
+        .from(transactions)
+        .where(sql`${transactions.walletId} IN (${sql.join(walletIds.map(id => sql`${id}`), sql`, `)})`)
+        .groupBy(transactions.walletId);
+
+    // Also get incoming transfers
+    const transferInResults = await db
+        .select({
+            walletId: transactions.toWalletId,
+            transferIn: sql`COALESCE(SUM(${transactions.amount}), 0)`,
         })
         .from(transactions)
         .where(
-            sql`(${transactions.walletId} = ${walletId} OR ${transactions.toWalletId} = ${walletId})`
-        );
+            and(
+                eq(transactions.type, "transfer"),
+                sql`${transactions.toWalletId} IN (${sql.join(walletIds.map(id => sql`${id}`), sql`, `)})`
+            )
+        )
+        .groupBy(transactions.toWalletId);
 
-    return Number(result[0].income) - Number(result[0].expense);
+    const balanceMap = {};
+    balanceResults.forEach((r) => {
+        balanceMap[r.walletId] = Number(r.income) - Number(r.expense) - Number(r.transferOut);
+    });
+    transferInResults.forEach((r) => {
+        balanceMap[r.walletId] = (balanceMap[r.walletId] || 0) + Number(r.transferIn);
+    });
+
+    return userWallets.map((w) => ({
+        ...w,
+        balance: balanceMap[w.id] || 0,
+    }));
 }
 
 export async function createWallet(formData) {
