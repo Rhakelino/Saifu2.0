@@ -87,6 +87,7 @@ export const transactions = pgTable("transactions", {
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
     type: varchar("type", { length: 10 }).notNull(), // 'income', 'expense', or 'transfer'
+    category: varchar("category", { length: 50 }).default("Lainnya"), // Kategori transaksi
     amount: integer("amount").notNull(),
     description: varchar("description", { length: 255 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),

@@ -4,8 +4,9 @@ import { useState } from "react";
 import { Plus, Wallet } from "lucide-react";
 import WalletCard from "@/components/WalletCard";
 import WalletModal from "@/components/WalletModal";
+import CategoryPieChart from "@/components/CategoryPieChart";
 
-export default function WalletPageClient({ wallets }) {
+export default function WalletPageClient({ wallets, transactions }) {
     const [showModal, setShowModal] = useState(false);
     const [editWallet, setEditWallet] = useState(null);
 
@@ -56,35 +57,46 @@ export default function WalletPageClient({ wallets }) {
                 </button>
             </div>
 
-            {/* Wallet Grid */}
-            {wallets.length === 0 ? (
-                <div className="card text-center py-16">
-                    <Wallet className="w-16 h-16 text-muted mx-auto mb-4 opacity-30" />
-                    <h3 className="text-lg font-semibold mb-2">Belum ada dompet</h3>
-                    <p className="text-muted-foreground text-sm mb-6">
-                        Mulai dengan menambahkan dompetmu yang pertama
-                    </p>
-                    <button
-                        onClick={() => setShowModal(true)}
-                        className="btn-primary mx-auto"
-                    >
-                        <Plus className="w-4 h-4" />
-                        Tambah Dompet
-                    </button>
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {wallets.map((wallet, i) => (
-                        <div
-                            key={wallet.id}
-                            className="animate-slide-up"
-                            style={{ animationDelay: `${i * 0.08}s`, animationFillMode: "backwards" }}
-                        >
-                            <WalletCard wallet={wallet} onEdit={handleEdit} />
+            {/* Content Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                {/* Left side: Wallets */}
+                <div className="lg:col-span-2">
+                    {wallets.length === 0 ? (
+                        <div className="card text-center py-16">
+                            <Wallet className="w-16 h-16 text-muted mx-auto mb-4 opacity-30" />
+                            <h3 className="text-lg font-semibold mb-2">Belum ada dompet</h3>
+                            <p className="text-muted-foreground text-sm mb-6">
+                                Mulai dengan menambahkan dompetmu yang pertama
+                            </p>
+                            <button
+                                onClick={() => setShowModal(true)}
+                                className="btn-primary mx-auto"
+                            >
+                                <Plus className="w-4 h-4" />
+                                Tambah Dompet
+                            </button>
                         </div>
-                    ))}
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {wallets.map((wallet, i) => (
+                                <div
+                                    key={wallet.id}
+                                    className="animate-slide-up"
+                                    style={{ animationDelay: `${i * 0.08}s`, animationFillMode: "backwards" }}
+                                >
+                                    <WalletCard wallet={wallet} onEdit={handleEdit} />
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
-            )}
+
+                {/* Right side: Pie Chart */}
+                <div className="lg:col-span-1">
+                    <CategoryPieChart transactions={transactions} />
+                </div>
+            </div>
 
             {/* Modal */}
             {showModal && (

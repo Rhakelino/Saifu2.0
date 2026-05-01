@@ -32,6 +32,8 @@ export async function createTransaction(formData) {
     const amount = parseInt(formData.get("amount"), 10);
     const description = formData.get("description");
 
+    const category = formData.get("category");
+
     if (!walletId || !type || !amount) {
         throw new Error("Wallet, type, and amount are required");
     }
@@ -40,6 +42,7 @@ export async function createTransaction(formData) {
         walletId,
         userId: session.user.id,
         type,
+        category: category || "Lainnya",
         amount,
         description: description || null,
     });
@@ -70,6 +73,7 @@ export async function transferBetweenWallets(formData) {
         toWalletId: toWalletId,
         userId: session.user.id,
         type: "transfer",
+        category: "Transfer",
         amount,
         description: description || null,
     });
@@ -84,6 +88,37 @@ export async function deleteTransaction(transactionId) {
 
     await db
         .delete(transactions)
+        .where(
+            and(
+                eq(transactions.id, transactionId),
+                eq(transactions.userId, session.user.id)
+            )
+        );
+
+    revalidatePath("/dashboard");
+    revalidatePath("/wallet");
+}
+
+export async function updateTransaction(formData) {
+    const session = await getSession();
+    if (!session) throw new Error("Unauthorized");
+
+    const transactionId = formData.get("transactionId");
+    const amount = parseInt(formData.get("amount"), 10);
+    const description = formData.get("description");
+    const category = formData.get("category");
+
+    if (!transactionId || !amount) {
+        throw new Error("Transaction ID and amount are required");
+    }
+
+    await db
+        .update(transactions)
+        .set({
+            amount,
+            description: description || null,
+            category: category || "Lainnya",
+        })
         .where(
             and(
                 eq(transactions.id, transactionId),
