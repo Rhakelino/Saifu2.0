@@ -18,15 +18,19 @@ export default function BottomNav({ wallets }) {
 
     return (
         <>
-            <div className="fixed bottom-0 z-50 w-full max-w-md mx-auto bg-zinc-900/90 backdrop-blur-md border-t border-zinc-800 pb-safe shadow-[0_-8px_30px_rgba(0,0,0,0.12)]">
-                <div className="flex items-center justify-around h-16 px-4">
-                    {navItems.map((item, index) => {
+            {/* Bottom Nav */}
+            <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
+                {/* Blur backdrop */}
+                <div className="absolute inset-0 bg-zinc-950/95 backdrop-blur-xl border-t border-zinc-800" />
+
+                <div className="relative flex items-center justify-around h-20 px-6 pb-safe max-w-md mx-auto">
+                    {navItems.map((item, i) => {
                         if (item.isFab) {
                             return (
                                 <button
                                     key="fab"
                                     onClick={() => setIsAddOpen(true)}
-                                    className="relative -top-5 flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/25 active:scale-95 transition-all duration-200 border-4 border-zinc-950"
+                                    className="relative -top-4 flex items-center justify-center w-14 h-14 rounded-full bg-white text-zinc-900 shadow-2xl shadow-white/10 hover:bg-zinc-200 active:scale-95 transition-all duration-200 border-[3px] border-zinc-950"
                                 >
                                     <Plus className="w-6 h-6" />
                                 </button>
@@ -40,17 +44,23 @@ export default function BottomNav({ wallets }) {
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                className={`flex flex-col items-center justify-center w-16 h-full space-y-1 active:scale-95 transition-all duration-200 ${
-                                    active ? "text-zinc-50" : "text-zinc-500 hover:text-zinc-400"
+                                className={`flex flex-col items-center justify-center gap-1.5 px-4 py-2 rounded-xl transition-all duration-200 active:scale-95 ${
+                                    active
+                                        ? "text-white"
+                                        : "text-zinc-500 hover:text-zinc-300"
                                 }`}
                             >
-                                <Icon className={`w-5 h-5 ${active ? "animate-scale-in" : ""}`} />
-                                <span className="text-[10px] font-medium">{item.label}</span>
+                                <div className={`p-1.5 rounded-lg transition-colors ${active ? "bg-white/10" : ""}`}>
+                                    <Icon className="w-5 h-5" strokeWidth={active ? 2.5 : 1.8} />
+                                </div>
+                                <span className={`text-[10px] font-semibold tracking-wide ${active ? "text-white" : "text-zinc-600"}`}>
+                                    {item.label}
+                                </span>
                             </Link>
                         );
                     })}
                 </div>
-            </div>
+            </nav>
 
             {isAddOpen && (
                 <AddTransactionForm wallets={wallets} onClose={() => setIsAddOpen(false)} />

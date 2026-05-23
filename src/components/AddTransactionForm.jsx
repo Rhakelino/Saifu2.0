@@ -8,11 +8,10 @@ import Swal from "sweetalert2";
 
 export default function AddTransactionForm({ wallets, onClose }) {
     const router = useRouter();
-    
-    // Controlled states for all inputs to guarantee clean resets
+
     const [type, setType] = useState("expense");
     const [loading, setLoading] = useState(false);
-    
+
     const [amountDisplay, setAmountDisplay] = useState("");
     const [amountRaw, setAmountRaw] = useState("");
     const [walletId, setWalletId] = useState("");
@@ -35,7 +34,7 @@ export default function AddTransactionForm({ wallets, onClose }) {
 
     const handleTypeChange = (newType) => {
         setType(newType);
-        setCategory(""); // Reset category when switching income/expense
+        setCategory("");
     };
 
     const isTransfer = type === "transfer";
@@ -54,7 +53,6 @@ export default function AddTransactionForm({ wallets, onClose }) {
                 await createTransaction(formData);
             }
 
-            // Explicitly reset all react states for a clean slate
             setAmountDisplay("");
             setAmountRaw("");
             setWalletId("");
@@ -62,11 +60,9 @@ export default function AddTransactionForm({ wallets, onClose }) {
             setToWalletId("");
             setCategory("");
             setDescription("");
-            
-            // Force Next.js router to refresh and sync server components fully
+
             router.refresh();
-            
-            // Show success notification with elegant dark SweetAlert2
+
             Swal.fire({
                 title: "Berhasil!",
                 text: "Transaksi berhasil disimpan.",
@@ -76,26 +72,26 @@ export default function AddTransactionForm({ wallets, onClose }) {
                 showConfirmButton: false,
                 toast: true,
                 position: "bottom-end",
-                background: "#0f172a",
-                color: "#f8fafc",
-                iconColor: "#10b981",
+                background: "#18181b",
+                color: "#fafafa",
+                iconColor: "#22c55e",
                 customClass: {
-                    popup: "rounded-2xl border border-slate-800 shadow-2xl shadow-black/50 mb-4 mr-4",
+                    popup: "rounded-xl border border-zinc-700 shadow-2xl mb-4 mr-4",
                     title: "text-sm font-semibold",
                 }
             });
-            
+
         } catch (err) {
             Swal.fire({
                 title: "Gagal",
                 text: err.message,
                 icon: "error",
-                background: "#0f172a",
-                color: "#f8fafc",
-                iconColor: "#ef4444",
+                background: "#18181b",
+                color: "#fafafa",
+                iconColor: "#f43f5e",
                 customClass: {
-                    popup: "rounded-2xl border border-slate-800",
-                    confirmButton: "bg-primary text-white rounded-xl px-4 py-2",
+                    popup: "rounded-xl border border-zinc-700 shadow-2xl",
+                    confirmButton: "bg-white text-zinc-900 rounded-lg px-5 py-2 text-sm font-semibold",
                 }
             });
         }
@@ -103,126 +99,122 @@ export default function AddTransactionForm({ wallets, onClose }) {
         setLoading(false);
     };
 
+    const typeButtons = [
+        { id: "income", label: "Masuk", icon: TrendingUp, activeColor: "text-emerald-400 border-emerald-500/40 bg-emerald-500/10" },
+        { id: "expense", label: "Keluar", icon: TrendingDown, activeColor: "text-rose-400 border-rose-500/40 bg-rose-500/10" },
+        { id: "transfer", label: "Transfer", icon: ArrowLeftRight, activeColor: "text-zinc-100 border-zinc-500/40 bg-zinc-500/10" },
+    ];
+
     return (
-        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-zinc-950/80 backdrop-blur-sm animate-fade-in" onClick={onClose}>
-            <div className="drawer-content relative max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-                <div className="w-12 h-1.5 bg-zinc-800 rounded-full mx-auto mb-6" />
-                {onClose && (
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        className="absolute top-6 right-6 p-2 text-zinc-500 hover:text-zinc-50 transition-colors"
-                    >
-                        <X className="w-5 h-5" />
-                    </button>
-                )}
+        <div
+            className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-md animate-fade-in"
+            onClick={onClose}
+        >
+            <div
+                className="drawer-content relative w-full max-w-[480px] max-h-[90vh] overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* Handle bar */}
+                <div className="w-10 h-1 bg-zinc-700 rounded-full mx-auto mb-5" />
 
-                <h3 className="text-xl font-bold mb-6 text-zinc-50 flex items-center gap-2">
-                    <Plus className="w-5 h-5 text-emerald-500" />
-                    Tambah Transaksi
-                </h3>
+                {/* Header */}
+                <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center">
+                            <Plus className="w-4 h-4 text-zinc-400" />
+                        </div>
+                        <h3 className="text-base font-semibold text-zinc-100">Tambah Transaksi</h3>
+                    </div>
+                    {onClose && (
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="p-1.5 text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 rounded-lg transition-all"
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
+                    )}
+                </div>
 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     {/* Type Toggle */}
-                    <div className="flex gap-2 mb-6">
-                        <button
-                            type="button"
-                            onClick={() => handleTypeChange("income")}
-                            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95 ${type === "income"
-                                ? "bg-emerald-500/15 text-emerald-500 border border-emerald-500/30"
-                                : "bg-zinc-900/50 text-zinc-400 border border-zinc-800 hover:border-zinc-700"
+                    <div className="flex gap-2 p-1 bg-zinc-950 rounded-lg border border-zinc-800">
+                        {typeButtons.map(({ id, label, icon: Icon, activeColor }) => (
+                            <button
+                                key={id}
+                                type="button"
+                                onClick={() => handleTypeChange(id)}
+                                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-semibold transition-all border ${
+                                    type === id
+                                        ? activeColor
+                                        : "text-zinc-500 border-transparent hover:text-zinc-300"
                                 }`}
-                        >
-                            <TrendingUp className="w-4 h-4" />
-                            Masuk
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => handleTypeChange("expense")}
-                            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95 ${type === "expense"
-                                ? "bg-rose-500/15 text-rose-500 border border-rose-500/30"
-                                : "bg-zinc-900/50 text-zinc-400 border border-zinc-800 hover:border-zinc-700"
-                                }`}
-                        >
-                            <TrendingDown className="w-4 h-4" />
-                            Keluar
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => handleTypeChange("transfer")}
-                            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95 ${type === "transfer"
-                                ? "bg-blue-500/15 text-blue-400 border border-blue-500/30"
-                                : "bg-zinc-900/50 text-zinc-400 border border-zinc-800 hover:border-zinc-700"
-                                }`}
-                        >
-                            <ArrowLeftRight className="w-4 h-4" />
-                            Transfer
-                        </button>
+                            >
+                                <Icon className="w-3.5 h-3.5" />
+                                {label}
+                            </button>
+                        ))}
                     </div>
 
-                    {/* Wallet Select — changes based on type */}
+                    {/* Wallet */}
                     {isTransfer ? (
-                        <div className="flex gap-2 mb-4">
-                            <div className="flex-1">
-                                <label className="block text-xs text-zinc-400 mb-1.5">Dari Dompet</label>
-                                <select 
-                                    name="fromWalletId" 
-                                    required 
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-xs font-medium text-zinc-500 mb-1.5">Dari Dompet</label>
+                                <select
+                                    name="fromWalletId"
+                                    required
                                     className="input"
                                     value={fromWalletId}
                                     onChange={(e) => setFromWalletId(e.target.value)}
                                 >
-                                    <option value="">Pilih Asal</option>
+                                    <option value="">Pilih</option>
                                     {wallets?.map((w) => (
-                                        <option key={w.id} value={w.id}>
-                                            {w.name}
-                                        </option>
+                                        <option key={w.id} value={w.id}>{w.name}</option>
                                     ))}
                                 </select>
                             </div>
-                            <div className="flex-1">
-                                <label className="block text-xs text-zinc-400 mb-1.5">Ke Dompet</label>
-                                <select 
-                                    name="toWalletId" 
-                                    required 
+                            <div>
+                                <label className="block text-xs font-medium text-zinc-500 mb-1.5">Ke Dompet</label>
+                                <select
+                                    name="toWalletId"
+                                    required
                                     className="input"
                                     value={toWalletId}
                                     onChange={(e) => setToWalletId(e.target.value)}
                                 >
-                                    <option value="">Pilih Tujuan</option>
+                                    <option value="">Pilih</option>
                                     {wallets?.map((w) => (
-                                        <option key={w.id} value={w.id}>
-                                            {w.name}
-                                        </option>
+                                        <option key={w.id} value={w.id}>{w.name}</option>
                                     ))}
                                 </select>
                             </div>
                         </div>
                     ) : (
-                        <div className="mb-4">
-                            <select 
-                                name="walletId" 
-                                required 
+                        <div>
+                            <label className="block text-xs font-medium text-zinc-500 mb-1.5">Dompet</label>
+                            <select
+                                name="walletId"
+                                required
                                 className="input"
                                 value={walletId}
                                 onChange={(e) => setWalletId(e.target.value)}
                             >
                                 <option value="">Pilih Dompet</option>
                                 {wallets?.map((w) => (
-                                    <option key={w.id} value={w.id}>
-                                        {w.name}
-                                    </option>
+                                    <option key={w.id} value={w.id}>{w.name}</option>
                                 ))}
                             </select>
                         </div>
                     )}
 
-                    {/* Category Select — hidden for transfers */}
+                    {/* Category */}
                     {!isTransfer && (
-                        <div className="mb-4">
-                            <select 
-                                name="category" 
-                                required 
+                        <div>
+                            <label className="block text-xs font-medium text-zinc-500 mb-1.5">Kategori</label>
+                            <select
+                                name="category"
+                                required
                                 className="input"
                                 value={category}
                                 onChange={(e) => setCategory(e.target.value)}
@@ -252,37 +244,43 @@ export default function AddTransactionForm({ wallets, onClose }) {
                     )}
 
                     {/* Amount */}
-                    <div className="mb-4">
+                    <div>
+                        <label className="block text-xs font-medium text-zinc-500 mb-1.5">Jumlah</label>
                         <input
                             type="text"
                             inputMode="numeric"
                             value={amountDisplay}
                             onChange={handleAmountChange}
-                            placeholder="Jumlah (Rp)"
+                            placeholder="0"
                             required
-                            className="input font-bold text-lg"
+                            className="input text-xl font-bold text-zinc-100"
                         />
                         <input type="hidden" name="amount" value={amountRaw} />
                     </div>
 
                     {/* Description */}
-                    <div className="mb-8">
+                    <div>
+                        <label className="block text-xs font-medium text-zinc-500 mb-1.5">Catatan</label>
                         <input
                             type="text"
                             name="description"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            placeholder={isTransfer ? "Keterangan (contoh: Tarik tunai BRImo)" : "Deskripsi (opsional)"}
+                            placeholder={isTransfer ? "Keterangan transfer..." : "Deskripsi (opsional)"}
                             className="input"
                         />
                     </div>
 
-                    <button type="submit" disabled={loading} className="btn-primary w-full justify-center active:scale-95 py-3.5">
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="btn-primary w-full py-3 mt-1 text-sm"
+                    >
                         {loading
                             ? "Menyimpan..."
                             : isTransfer
-                                ? "Transfer Sekarang"
-                                : "Simpan Transaksi"}
+                            ? "Transfer Sekarang"
+                            : "Simpan Transaksi"}
                     </button>
                 </form>
             </div>

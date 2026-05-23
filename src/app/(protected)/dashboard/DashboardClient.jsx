@@ -1,17 +1,22 @@
 "use client";
 
-import { Activity, ArrowUpRight, ArrowDownRight, ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { Activity, ArrowUpRight, ArrowDownRight, ChevronRight, TrendingUp, Download } from "lucide-react";
 import TransactionItem from "@/components/TransactionItem";
 import FinanceChart from "@/components/FinanceChart";
+import ExportCSV from "@/components/ExportCSV";
 import Link from "next/link";
 
 export default function DashboardClient({
+    user,
     wallets,
     transactions,
     totalBalance,
     totalIncome,
     totalExpense,
 }) {
+    const [showExport, setShowExport] = useState(false);
+
     const formatCurrency = (amount) =>
         new Intl.NumberFormat("id-ID", {
             style: "currency",
@@ -25,71 +30,105 @@ export default function DashboardClient({
     const recentTransactions = transactions.slice(0, 5);
 
     return (
-        <div className="animate-fade-in flex flex-col space-y-6">
-            {/* Hero Balance Card */}
-            <div className="flex flex-col items-center pt-2 pb-4">
-                <span className="text-sm font-medium text-zinc-400 mb-1">Total Saldo</span>
-                <h2 className="text-4xl font-bold tracking-tight text-zinc-50 mb-6">
+        <div className="animate-fade-in flex flex-col gap-6 max-w-2xl mx-auto">
+
+            {/* Balance Hero */}
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
+                <div className="flex items-start justify-between mb-1">
+                    <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">Total Saldo</p>
+                    {/* Export Button */}
+                    <button
+                        onClick={() => setShowExport(true)}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-semibold text-zinc-500 hover:text-zinc-200 border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800/40 transition-all"
+                        title="Export Laporan"
+                    >
+                        <Download className="w-3 h-3" />
+                        Export
+                    </button>
+                </div>
+                <h2 className="text-4xl font-bold text-white tracking-tight mb-6">
                     {formatCurrency(totalBalance)}
                 </h2>
 
-                <div className="flex items-center gap-3 w-full">
-                    <div className="flex-1 bg-emerald-500/10 rounded-2xl p-4 flex items-center gap-3 border border-emerald-500/10">
-                        <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                            <ArrowUpRight className="w-5 h-5 text-emerald-500" />
+                <div className="grid grid-cols-2 gap-3">
+                    {/* Income */}
+                    <div className="rounded-lg bg-zinc-950/60 border border-zinc-800 p-4 flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                            <ArrowUpRight className="w-4 h-4 text-emerald-400" />
                         </div>
                         <div>
-                            <p className="text-xs font-medium text-emerald-500/80 mb-0.5">Pemasukan</p>
-                            <p className="text-sm font-bold text-emerald-500">{formatCurrency(totalIncome)}</p>
+                            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-0.5">Pemasukan</p>
+                            <p className="text-sm font-bold text-emerald-400">{formatCurrency(totalIncome)}</p>
                         </div>
                     </div>
-                    <div className="flex-1 bg-rose-500/10 rounded-2xl p-4 flex items-center gap-3 border border-rose-500/10">
-                        <div className="w-10 h-10 rounded-full bg-rose-500/20 flex items-center justify-center">
-                            <ArrowDownRight className="w-5 h-5 text-rose-500" />
+
+                    {/* Expense */}
+                    <div className="rounded-lg bg-zinc-950/60 border border-zinc-800 p-4 flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shrink-0">
+                            <ArrowDownRight className="w-4 h-4 text-rose-400" />
                         </div>
                         <div>
-                            <p className="text-xs font-medium text-rose-500/80 mb-0.5">Pengeluaran</p>
-                            <p className="text-sm font-bold text-rose-500">{formatCurrency(totalExpense)}</p>
+                            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-0.5">Pengeluaran</p>
+                            <p className="text-sm font-bold text-rose-400">{formatCurrency(totalExpense)}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Chart Section */}
-            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
-                <h3 className="text-sm font-medium text-zinc-400 mb-4">Tren Keuangan</h3>
+            {/* Chart */}
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+                <div className="flex items-center gap-2 mb-5">
+                    <TrendingUp className="w-4 h-4 text-zinc-400" />
+                    <h3 className="text-sm font-semibold text-zinc-100">Tren Keuangan</h3>
+                </div>
                 <FinanceChart transactions={transactions} />
             </div>
 
             {/* Recent Transactions */}
-            <div>
-                <div className="flex items-center justify-between mb-4 px-1">
-                    <h3 className="text-base font-semibold text-zinc-50">Transaksi Terakhir</h3>
-                    <Link href="/wallet" className="text-sm text-zinc-400 flex items-center hover:text-zinc-50 transition-colors">
-                        Lihat Semua <ChevronRight className="w-4 h-4 ml-1" />
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900 overflow-hidden">
+                <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800">
+                    <h3 className="text-sm font-semibold text-zinc-100">Transaksi Terakhir</h3>
+                    <Link
+                        href="/wallet"
+                        className="text-xs font-semibold text-zinc-400 hover:text-zinc-200 flex items-center gap-1 transition-colors"
+                    >
+                        Lihat Semua <ChevronRight className="w-3.5 h-3.5" />
                     </Link>
                 </div>
-                
-                <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-2">
-                    {recentTransactions.length === 0 ? (
-                        <div className="text-center py-8">
-                            <Activity className="w-10 h-10 text-zinc-700 mx-auto mb-2" />
-                            <p className="text-sm text-zinc-500">Belum ada transaksi</p>
+
+                {recentTransactions.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-14 text-center">
+                        <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center mb-3">
+                            <Activity className="w-6 h-6 text-zinc-600" />
                         </div>
-                    ) : (
-                        <div className="flex flex-col">
-                            {recentTransactions.map((t, i) => (
-                                <div key={t.id} className={i !== recentTransactions.length - 1 ? "border-b border-zinc-800/50" : ""}>
-                                    <TransactionItem
-                                        transaction={t}
-                                        walletName={walletMap[t.walletId]}
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
+                        <p className="text-sm font-medium text-zinc-500">Belum ada transaksi</p>
+                        <p className="text-xs text-zinc-600 mt-1">Mulai catat pengeluaran pertamamu</p>
+                    </div>
+                ) : (
+                    <div className="divide-y divide-zinc-800/60">
+                        {recentTransactions.map((t) => (
+                            <TransactionItem
+                                key={t.id}
+                                transaction={t}
+                                walletName={walletMap[t.walletId]}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
+
+            {/* Export Modal */}
+            {showExport && (
+                <ExportCSV
+                    transactions={transactions}
+                    wallets={wallets}
+                    user={user}
+                    totalBalance={totalBalance}
+                    totalIncome={totalIncome}
+                    totalExpense={totalExpense}
+                    onClose={() => setShowExport(false)}
+                />
+            )}
         </div>
     );
 }

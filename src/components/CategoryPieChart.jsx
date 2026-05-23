@@ -1,44 +1,45 @@
 "use client";
 
 import { useMemo } from "react";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { PieChart as PieChartIcon } from "lucide-react";
 
 const COLORS = [
+    "#ffffff", // white
     "#3b82f6", // blue-500
     "#f59e0b", // amber-500
-    "#ef4444", // red-500
-    "#8b5cf6", // violet-500
-    "#ec4899", // pink-500
-    "#10b981", // emerald-500
-    "#64748b", // slate-500
+    "#22c55e", // emerald-500
+    "#f43f5e", // rose-500
+    "#06b6d4", // cyan-500
+    "#71717a", // zinc-500
 ];
 
 export default function CategoryPieChart({ transactions }) {
     const data = useMemo(() => {
-        // Only consider expenses for this pie chart
         const expenses = transactions?.filter(t => t.type === "expense") || [];
-        
         const categoryMap = {};
         expenses.forEach(t => {
             const cat = t.category || "Lainnya";
             if (!categoryMap[cat]) categoryMap[cat] = 0;
             categoryMap[cat] += t.amount;
         });
-
-        return Object.keys(categoryMap).map(key => ({
-            name: key,
-            value: categoryMap[key]
-        })).sort((a, b) => b.value - a.value); // Sort largest to smallest
+        return Object.keys(categoryMap)
+            .map(key => ({ name: key, value: categoryMap[key] }))
+            .sort((a, b) => b.value - a.value);
     }, [transactions]);
+
+    const total = data.reduce((sum, d) => sum + d.value, 0);
 
     const CustomTooltip = ({ active, payload }) => {
         if (active && payload && payload.length) {
             return (
-                <div className="glass p-3 rounded-xl border border-white/5 shadow-xl">
-                    <p className="font-semibold text-sm mb-1">{payload[0].name}</p>
-                    <p className="font-bold text-expense text-sm">
+                <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-3 shadow-2xl">
+                    <p className="text-xs font-semibold text-zinc-400 mb-1">{payload[0].name}</p>
+                    <p className="font-bold text-zinc-100 text-sm">
                         Rp {payload[0].value.toLocaleString("id-ID")}
+                    </p>
+                    <p className="text-xs text-zinc-500 mt-0.5">
+                        {((payload[0].value / total) * 100).toFixed(1)}% dari total
                     </p>
                 </div>
             );
@@ -48,30 +49,33 @@ export default function CategoryPieChart({ transactions }) {
 
     if (data.length === 0) {
         return (
-            <div className="card flex flex-col justify-center items-center h-full min-h-[300px]">
-                <PieChartIcon className="w-12 h-12 text-muted mx-auto mb-3 opacity-30" />
-                <p className="text-muted-foreground text-sm">Belum ada pengeluaran</p>
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 flex flex-col items-center text-center">
+                <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center mb-3">
+                    <PieChartIcon className="w-6 h-6 text-zinc-600" />
+                </div>
+                <p className="text-sm font-semibold text-zinc-400 mb-1">Pengeluaran per Kategori</p>
+                <p className="text-xs text-zinc-600">Belum ada pengeluaran yang dicatat</p>
             </div>
         );
     }
 
     return (
-        <div className="card flex flex-col h-full">
-            <h3 className="text-lg font-semibold flex items-center gap-2 mb-6">
-                <PieChartIcon className="w-5 h-5 text-accent" />
-                Pengeluaran per Kategori
-            </h3>
-            
-            <div className="w-full flex-1 min-h-[250px]">
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+            <div className="flex items-center gap-2 mb-4">
+                <PieChartIcon className="w-4 h-4 text-zinc-400" />
+                <h3 className="text-sm font-semibold text-zinc-100">Pengeluaran per Kategori</h3>
+            </div>
+
+            <div className="w-full h-[200px]">
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                         <Pie
                             data={data}
                             cx="50%"
                             cy="50%"
-                            innerRadius={60}
+                            innerRadius={55}
                             outerRadius={80}
-                            paddingAngle={5}
+                            paddingAngle={4}
                             dataKey="value"
                             stroke="none"
                         >
@@ -80,14 +84,26 @@ export default function CategoryPieChart({ transactions }) {
                             ))}
                         </Pie>
                         <Tooltip content={<CustomTooltip />} />
-                        <Legend 
-                            verticalAlign="bottom" 
-                            height={36} 
-                            iconType="circle"
-                            formatter={(value) => <span className="text-xs text-muted-foreground">{value}</span>}
-                        />
                     </PieChart>
                 </ResponsiveContainer>
+            </div>
+
+            {/* Legend */}
+            <div className="flex flex-col gap-2 mt-3">
+                {data.map((entry, index) => (
+                    <div key={entry.name} className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2">
+                            <div
+                                className="w-2.5 h-2.5 rounded-full shrink-0"
+                                style={{ background: COLORS[index % COLORS.length] }}
+                            />
+                            <span className="text-zinc-400">{entry.name}</span>
+                        </div>
+                        <span className="font-semibold text-zinc-300">
+                            Rp {entry.value.toLocaleString("id-ID")}
+                        </span>
+                    </div>
+                ))}
             </div>
         </div>
     );

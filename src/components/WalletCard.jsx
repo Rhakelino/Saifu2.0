@@ -16,24 +16,23 @@ const typeLabels = {
     cash: "Tunai",
 };
 
-const typeColors = {
-    bank: "from-blue-500 to-indigo-600",
-    ewallet: "from-violet-500 to-purple-600",
-    cash: "from-amber-500 to-orange-600",
+const typeStyles = {
+    bank: { icon: "bg-blue-500/10 border-blue-500/20 text-blue-400", badge: "text-blue-400" },
+    ewallet: { icon: "bg-zinc-700/50 border-zinc-600/30 text-zinc-300", badge: "text-zinc-400" },
+    cash: { icon: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400", badge: "text-emerald-400" },
 };
 
 export default function WalletCard({ wallet, onEdit }) {
     const [menuOpen, setMenuOpen] = useState(false);
     const Icon = typeIcons[wallet.type] || Wallet;
-    const gradient = typeColors[wallet.type] || "from-emerald-500 to-teal-600";
+    const style = typeStyles[wallet.type] || typeStyles.ewallet;
 
-    const formatCurrency = (amount) => {
-        return new Intl.NumberFormat("id-ID", {
+    const formatCurrency = (amount) =>
+        new Intl.NumberFormat("id-ID", {
             style: "currency",
             currency: "IDR",
             minimumFractionDigits: 0,
         }).format(amount);
-    };
 
     const handleDelete = async () => {
         if (confirm(`Hapus dompet "${wallet.name}"? Semua transaksi akan ikut terhapus.`)) {
@@ -43,49 +42,47 @@ export default function WalletCard({ wallet, onEdit }) {
     };
 
     return (
-        <div className="card relative group p-5">
-            {/* Menu Button */}
+        <div className="relative bg-zinc-900 border border-zinc-800 rounded-xl p-5 hover:border-zinc-700 transition-colors group">
+            {/* Menu */}
             <div className="absolute top-4 right-4">
                 <button
                     onClick={() => setMenuOpen(!menuOpen)}
-                    className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-50 active:bg-zinc-800 transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+                    className="p-1.5 rounded-lg text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                 >
-                    <MoreVertical className="w-5 h-5" />
+                    <MoreVertical className="w-4 h-4" />
                 </button>
                 {menuOpen && (
-                    <div className="absolute right-0 top-8 bg-zinc-800 border border-zinc-700 rounded-xl py-1 shadow-2xl z-10 min-w-[140px] animate-scale-in">
+                    <div className="absolute right-0 top-9 bg-zinc-900 border border-zinc-800 rounded-xl py-1 shadow-2xl z-10 min-w-[140px] animate-scale-in">
                         <button
                             onClick={() => { onEdit(wallet); setMenuOpen(false); }}
-                            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-300 hover:text-zinc-50 hover:bg-zinc-700/50 transition-all active:scale-95"
+                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-zinc-300 hover:text-zinc-100 hover:bg-zinc-800 transition-all"
                         >
-                            <Edit className="w-4 h-4" /> Edit
+                            <Edit className="w-3.5 h-3.5" /> Edit
                         </button>
                         <button
                             onClick={handleDelete}
-                            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-rose-400 hover:text-rose-300 hover:bg-zinc-700/50 transition-all active:scale-95"
+                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-all"
                         >
-                            <Trash2 className="w-4 h-4" /> Hapus
+                            <Trash2 className="w-3.5 h-3.5" /> Hapus
                         </button>
                     </div>
                 )}
             </div>
 
-            {/* Content Row */}
-            <div className="flex items-center gap-4">
-                {/* Icon */}
-                <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center shrink-0`}>
-                    <Icon className="w-6 h-6 text-white" />
+            {/* Content */}
+            <div className="flex items-center gap-4 pr-8">
+                <div className={`w-11 h-11 rounded-xl border flex items-center justify-center shrink-0 ${style.icon}`}>
+                    <Icon className="w-5 h-5" />
                 </div>
 
-                <div className="flex-1 min-w-0 pr-6">
-                    <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-0.5">
+                <div className="flex-1 min-w-0">
+                    <p className={`text-[10px] font-semibold uppercase tracking-widest mb-0.5 ${style.badge}`}>
                         {typeLabels[wallet.type] || wallet.type}
                     </p>
-                    <h3 className="text-base font-semibold text-zinc-50 truncate mb-1">{wallet.name}</h3>
-                    <p
-                        className={`text-lg font-bold ${wallet.balance >= 0 ? "text-emerald-500" : "text-rose-500"
-                            }`}
-                    >
+                    <h3 className="text-sm font-semibold text-zinc-100 truncate">{wallet.name}</h3>
+                    <p className={`text-base font-bold tracking-tight mt-0.5 ${
+                        wallet.balance >= 0 ? "text-zinc-100" : "text-rose-400"
+                    }`}>
                         {formatCurrency(wallet.balance || 0)}
                     </p>
                 </div>
