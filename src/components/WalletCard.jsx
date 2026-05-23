@@ -43,51 +43,53 @@ export default function WalletCard({ wallet, onEdit }) {
     };
 
     return (
-        <div className="card relative group">
+        <div className="card relative group p-5">
             {/* Menu Button */}
             <div className="absolute top-4 right-4">
                 <button
                     onClick={() => setMenuOpen(!menuOpen)}
-                    className="p-1.5 rounded-lg text-muted hover:text-foreground hover:bg-surface transition-all opacity-0 group-hover:opacity-100"
+                    className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-50 active:bg-zinc-800 transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                 >
-                    <MoreVertical className="w-4 h-4" />
+                    <MoreVertical className="w-5 h-5" />
                 </button>
                 {menuOpen && (
-                    <div className="absolute right-0 top-8 bg-card border border-border rounded-xl py-1 shadow-xl z-10 min-w-[140px] animate-scale-in">
+                    <div className="absolute right-0 top-8 bg-zinc-800 border border-zinc-700 rounded-xl py-1 shadow-2xl z-10 min-w-[140px] animate-scale-in">
                         <button
                             onClick={() => { onEdit(wallet); setMenuOpen(false); }}
-                            className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-surface transition-all"
+                            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-300 hover:text-zinc-50 hover:bg-zinc-700/50 transition-all active:scale-95"
                         >
-                            <Edit className="w-3.5 h-3.5" /> Edit
+                            <Edit className="w-4 h-4" /> Edit
                         </button>
                         <button
                             onClick={handleDelete}
-                            className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-400 hover:text-red-300 hover:bg-surface transition-all"
+                            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-rose-400 hover:text-rose-300 hover:bg-zinc-700/50 transition-all active:scale-95"
                         >
-                            <Trash2 className="w-3.5 h-3.5" /> Hapus
+                            <Trash2 className="w-4 h-4" /> Hapus
                         </button>
                     </div>
                 )}
             </div>
 
-            {/* Icon */}
-            <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-4 shadow-lg`}>
-                <Icon className="w-6 h-6 text-white" />
+            {/* Content Row */}
+            <div className="flex items-center gap-4">
+                {/* Icon */}
+                <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center shrink-0`}>
+                    <Icon className="w-6 h-6 text-white" />
+                </div>
+
+                <div className="flex-1 min-w-0 pr-6">
+                    <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-0.5">
+                        {typeLabels[wallet.type] || wallet.type}
+                    </p>
+                    <h3 className="text-base font-semibold text-zinc-50 truncate mb-1">{wallet.name}</h3>
+                    <p
+                        className={`text-lg font-bold ${wallet.balance >= 0 ? "text-emerald-500" : "text-rose-500"
+                            }`}
+                    >
+                        {formatCurrency(wallet.balance || 0)}
+                    </p>
+                </div>
             </div>
-
-            {/* Info */}
-            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                {typeLabels[wallet.type] || wallet.type}
-            </p>
-            <h3 className="text-lg font-semibold mb-3 truncate pr-8">{wallet.name}</h3>
-
-            {/* Balance */}
-            <p
-                className={`text-xl font-bold ${wallet.balance >= 0 ? "text-income" : "text-expense"
-                    }`}
-            >
-                {formatCurrency(wallet.balance || 0)}
-            </p>
         </div>
     );
 }

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "@/lib/auth-client";
-import { Wallet, TrendingUp, Shield, ArrowRight, Coins } from "lucide-react";
+import { Wallet, TrendingUp, Shield, Coins } from "lucide-react";
 
 export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
@@ -21,53 +21,53 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center px-4 relative overflow-hidden">
+        <div className="min-h-screen flex flex-col items-center justify-center px-4 relative overflow-hidden bg-zinc-950">
             {/* Background Effects */}
             <div
-                className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full opacity-20 blur-[120px]"
+                className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full opacity-10 blur-[120px]"
                 style={{ background: "radial-gradient(circle, #10b981, transparent)" }}
             />
             <div
-                className="absolute bottom-[-20%] right-[-10%] w-[400px] h-[400px] rounded-full opacity-15 blur-[100px]"
-                style={{ background: "radial-gradient(circle, #8b5cf6, transparent)" }}
+                className="absolute bottom-[-20%] right-[-10%] w-[400px] h-[400px] rounded-full opacity-10 blur-[100px]"
+                style={{ background: "radial-gradient(circle, #059669, transparent)" }}
             />
 
             {/* Main Content */}
             <div className="relative z-10 w-full max-w-md animate-fade-in">
                 {/* Logo & Brand */}
                 <div className="text-center mb-10">
-                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/20">
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl mb-6 bg-gradient-to-br from-emerald-500 to-teal-600 shadow-[0_0_40px_rgba(16,185,129,0.3)]">
                         <Coins className="w-10 h-10 text-white" />
                     </div>
-                    <h1 className="text-4xl font-bold mb-2">
-                        <span className="gradient-text">Saifu</span>
+                    <h1 className="text-4xl font-bold mb-3 tracking-tight text-zinc-50">
+                        Saifu
                     </h1>
-                    <p className="text-muted-foreground text-lg">
+                    <p className="text-zinc-400 text-lg font-medium">
                         Kelola keuanganmu dengan cerdas
                     </p>
                 </div>
 
                 {/* Login Card */}
-                <div className="glass rounded-2xl p-8 mb-8">
-                    <h2 className="text-xl font-semibold mb-2 text-center">
+                <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 mb-8 shadow-2xl">
+                    <h2 className="text-xl font-bold mb-2 text-center text-zinc-50">
                         Selamat Datang
                     </h2>
-                    <p className="text-muted text-sm text-center mb-8">
+                    <p className="text-zinc-400 text-sm text-center mb-8">
                         Masuk untuk mulai mengelola keuanganmu
                     </p>
 
                     <button
                         onClick={handleGoogleLogin}
                         disabled={isLoading}
-                        className={`w-full flex items-center justify-center gap-3 bg-white text-gray-800 font-semibold py-3.5 px-6 rounded-xl transition-all duration-200 ${
+                        className={`w-full flex items-center justify-center gap-3 bg-zinc-50 text-zinc-950 font-bold py-3.5 px-6 rounded-2xl transition-all duration-200 ${
                             isLoading 
                             ? 'opacity-80 cursor-wait' 
-                            : 'hover:bg-gray-100 hover:shadow-lg hover:shadow-white/10 cursor-pointer'
+                            : 'hover:bg-zinc-200 active:scale-95 cursor-pointer shadow-lg shadow-white/5'
                         }`}
                     >
                         {isLoading ? (
                             <>
-                                <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-800 rounded-full animate-spin"></div>
+                                <div className="w-5 h-5 border-2 border-zinc-400 border-t-zinc-950 rounded-full animate-spin"></div>
                                 <span className="opacity-80">Sedang memuat...</span>
                             </>
                         ) : (
@@ -90,7 +90,7 @@ export default function LoginPage() {
                                         fill="#EA4335"
                                     />
                                 </svg>
-                                Masuk dengan Google
+                                Lanjutkan dengan Google
                             </>
                         )}
                     </button>
@@ -98,17 +98,23 @@ export default function LoginPage() {
 
                 {/* Features Grid */}
                 <div className="grid grid-cols-3 gap-3">
-                    <div className="card text-center py-4 px-3">
-                        <Wallet className="w-6 h-6 text-accent mx-auto mb-2" />
-                        <p className="text-xs text-muted-foreground">Multi Wallet</p>
+                    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl text-center py-5 px-3 flex flex-col items-center">
+                        <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center mb-3">
+                            <Wallet className="w-5 h-5 text-emerald-500" />
+                        </div>
+                        <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">Dompet</p>
                     </div>
-                    <div className="card text-center py-4 px-3">
-                        <TrendingUp className="w-6 h-6 text-accent mx-auto mb-2" />
-                        <p className="text-xs text-muted-foreground">Real-time</p>
+                    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl text-center py-5 px-3 flex flex-col items-center">
+                        <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center mb-3">
+                            <TrendingUp className="w-5 h-5 text-emerald-500" />
+                        </div>
+                        <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">Real-time</p>
                     </div>
-                    <div className="card text-center py-4 px-3">
-                        <Shield className="w-6 h-6 text-accent mx-auto mb-2" />
-                        <p className="text-xs text-muted-foreground">Aman</p>
+                    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl text-center py-5 px-3 flex flex-col items-center">
+                        <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center mb-3">
+                            <Shield className="w-5 h-5 text-emerald-500" />
+                        </div>
+                        <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">Aman</p>
                     </div>
                 </div>
             </div>

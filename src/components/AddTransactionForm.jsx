@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createTransaction, transferBetweenWallets } from "@/actions/transaction-actions";
-import { Plus, TrendingUp, TrendingDown, ArrowLeftRight } from "lucide-react";
+import { Plus, TrendingUp, TrendingDown, ArrowLeftRight, X } from "lucide-react";
 import Swal from "sweetalert2";
 
-export default function AddTransactionForm({ wallets }) {
+export default function AddTransactionForm({ wallets, onClose }) {
     const router = useRouter();
     
     // Controlled states for all inputs to guarantee clean resets
@@ -104,173 +104,188 @@ export default function AddTransactionForm({ wallets }) {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="card relative">
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <Plus className="w-5 h-5 text-accent" />
-                Tambah Transaksi
-            </h3>
-
-            {/* Type Toggle */}
-            <div className="flex gap-2 mb-4">
-                <button
-                    type="button"
-                    onClick={() => handleTypeChange("income")}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${type === "income"
-                        ? "bg-income/15 text-income border border-income/30"
-                        : "bg-surface text-muted-foreground border border-border hover:border-border-hover"
-                        }`}
-                >
-                    <TrendingUp className="w-4 h-4" />
-                    Masuk
-                </button>
-                <button
-                    type="button"
-                    onClick={() => handleTypeChange("expense")}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${type === "expense"
-                        ? "bg-expense/15 text-expense border border-expense/30"
-                        : "bg-surface text-muted-foreground border border-border hover:border-border-hover"
-                        }`}
-                >
-                    <TrendingDown className="w-4 h-4" />
-                    Keluar
-                </button>
-                <button
-                    type="button"
-                    onClick={() => handleTypeChange("transfer")}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${type === "transfer"
-                        ? "bg-blue-500/15 text-blue-400 border border-blue-500/30"
-                        : "bg-surface text-muted-foreground border border-border hover:border-border-hover"
-                        }`}
-                >
-                    <ArrowLeftRight className="w-4 h-4" />
-                    Transfer
-                </button>
-            </div>
-
-            {/* Wallet Select — changes based on type */}
-            {isTransfer ? (
-                <>
-                    <div className="mb-3">
-                        <label className="block text-xs text-muted-foreground mb-1.5">Dari Dompet</label>
-                        <select 
-                            name="fromWalletId" 
-                            required 
-                            className="input"
-                            value={fromWalletId}
-                            onChange={(e) => setFromWalletId(e.target.value)}
-                        >
-                            <option value="">Pilih dompet asal</option>
-                            {wallets?.map((w) => (
-                                <option key={w.id} value={w.id}>
-                                    {w.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className="mb-3">
-                        <label className="block text-xs text-muted-foreground mb-1.5">Ke Dompet</label>
-                        <select 
-                            name="toWalletId" 
-                            required 
-                            className="input"
-                            value={toWalletId}
-                            onChange={(e) => setToWalletId(e.target.value)}
-                        >
-                            <option value="">Pilih dompet tujuan</option>
-                            {wallets?.map((w) => (
-                                <option key={w.id} value={w.id}>
-                                    {w.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                </>
-            ) : (
-                <div className="mb-3">
-                    <select 
-                        name="walletId" 
-                        required 
-                        className="input"
-                        value={walletId}
-                        onChange={(e) => setWalletId(e.target.value)}
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-zinc-950/80 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+            <div className="drawer-content relative max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                <div className="w-12 h-1.5 bg-zinc-800 rounded-full mx-auto mb-6" />
+                {onClose && (
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="absolute top-6 right-6 p-2 text-zinc-500 hover:text-zinc-50 transition-colors"
                     >
-                        <option value="">Pilih Dompet</option>
-                        {wallets?.map((w) => (
-                            <option key={w.id} value={w.id}>
-                                {w.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-            )}
+                        <X className="w-5 h-5" />
+                    </button>
+                )}
 
-            {/* Category Select — hidden for transfers */}
-            {!isTransfer && (
-                <div className="mb-3">
-                    <select 
-                        name="category" 
-                        required 
-                        className="input"
-                        value={category}
-                        onChange={(e) => setCategory(e.target.value)}
-                    >
-                        <option value="">Pilih Kategori</option>
-                        {type === "expense" ? (
-                            <>
-                                <option value="Makan & Minum">Makan & Minum</option>
-                                <option value="Transportasi">Transportasi</option>
-                                <option value="Tagihan">Tagihan</option>
-                                <option value="Belanja">Belanja</option>
-                                <option value="Hiburan">Hiburan</option>
-                                <option value="Kesehatan">Kesehatan</option>
-                                <option value="Lainnya">Lainnya</option>
-                            </>
-                        ) : (
-                            <>
-                                <option value="Gaji">Gaji</option>
-                                <option value="Bonus">Bonus</option>
-                                <option value="Hasil Usaha">Hasil Usaha</option>
-                                <option value="Pemberian">Pemberian</option>
-                                <option value="Lainnya">Lainnya</option>
-                            </>
-                        )}
-                    </select>
-                </div>
-            )}
+                <h3 className="text-xl font-bold mb-6 text-zinc-50 flex items-center gap-2">
+                    <Plus className="w-5 h-5 text-emerald-500" />
+                    Tambah Transaksi
+                </h3>
 
-            {/* Amount */}
-            <div className="mb-3">
-                <input
-                    type="text"
-                    inputMode="numeric"
-                    value={amountDisplay}
-                    onChange={handleAmountChange}
-                    placeholder="Jumlah (Rp)"
-                    required
-                    className="input"
-                />
-                <input type="hidden" name="amount" value={amountRaw} />
+                <form onSubmit={handleSubmit}>
+                    {/* Type Toggle */}
+                    <div className="flex gap-2 mb-6">
+                        <button
+                            type="button"
+                            onClick={() => handleTypeChange("income")}
+                            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95 ${type === "income"
+                                ? "bg-emerald-500/15 text-emerald-500 border border-emerald-500/30"
+                                : "bg-zinc-900/50 text-zinc-400 border border-zinc-800 hover:border-zinc-700"
+                                }`}
+                        >
+                            <TrendingUp className="w-4 h-4" />
+                            Masuk
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => handleTypeChange("expense")}
+                            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95 ${type === "expense"
+                                ? "bg-rose-500/15 text-rose-500 border border-rose-500/30"
+                                : "bg-zinc-900/50 text-zinc-400 border border-zinc-800 hover:border-zinc-700"
+                                }`}
+                        >
+                            <TrendingDown className="w-4 h-4" />
+                            Keluar
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => handleTypeChange("transfer")}
+                            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95 ${type === "transfer"
+                                ? "bg-blue-500/15 text-blue-400 border border-blue-500/30"
+                                : "bg-zinc-900/50 text-zinc-400 border border-zinc-800 hover:border-zinc-700"
+                                }`}
+                        >
+                            <ArrowLeftRight className="w-4 h-4" />
+                            Transfer
+                        </button>
+                    </div>
+
+                    {/* Wallet Select — changes based on type */}
+                    {isTransfer ? (
+                        <div className="flex gap-2 mb-4">
+                            <div className="flex-1">
+                                <label className="block text-xs text-zinc-400 mb-1.5">Dari Dompet</label>
+                                <select 
+                                    name="fromWalletId" 
+                                    required 
+                                    className="input"
+                                    value={fromWalletId}
+                                    onChange={(e) => setFromWalletId(e.target.value)}
+                                >
+                                    <option value="">Pilih Asal</option>
+                                    {wallets?.map((w) => (
+                                        <option key={w.id} value={w.id}>
+                                            {w.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="flex-1">
+                                <label className="block text-xs text-zinc-400 mb-1.5">Ke Dompet</label>
+                                <select 
+                                    name="toWalletId" 
+                                    required 
+                                    className="input"
+                                    value={toWalletId}
+                                    onChange={(e) => setToWalletId(e.target.value)}
+                                >
+                                    <option value="">Pilih Tujuan</option>
+                                    {wallets?.map((w) => (
+                                        <option key={w.id} value={w.id}>
+                                            {w.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="mb-4">
+                            <select 
+                                name="walletId" 
+                                required 
+                                className="input"
+                                value={walletId}
+                                onChange={(e) => setWalletId(e.target.value)}
+                            >
+                                <option value="">Pilih Dompet</option>
+                                {wallets?.map((w) => (
+                                    <option key={w.id} value={w.id}>
+                                        {w.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+
+                    {/* Category Select — hidden for transfers */}
+                    {!isTransfer && (
+                        <div className="mb-4">
+                            <select 
+                                name="category" 
+                                required 
+                                className="input"
+                                value={category}
+                                onChange={(e) => setCategory(e.target.value)}
+                            >
+                                <option value="">Pilih Kategori</option>
+                                {type === "expense" ? (
+                                    <>
+                                        <option value="Makan & Minum">Makan & Minum</option>
+                                        <option value="Transportasi">Transportasi</option>
+                                        <option value="Tagihan">Tagihan</option>
+                                        <option value="Belanja">Belanja</option>
+                                        <option value="Hiburan">Hiburan</option>
+                                        <option value="Kesehatan">Kesehatan</option>
+                                        <option value="Lainnya">Lainnya</option>
+                                    </>
+                                ) : (
+                                    <>
+                                        <option value="Gaji">Gaji</option>
+                                        <option value="Bonus">Bonus</option>
+                                        <option value="Hasil Usaha">Hasil Usaha</option>
+                                        <option value="Pemberian">Pemberian</option>
+                                        <option value="Lainnya">Lainnya</option>
+                                    </>
+                                )}
+                            </select>
+                        </div>
+                    )}
+
+                    {/* Amount */}
+                    <div className="mb-4">
+                        <input
+                            type="text"
+                            inputMode="numeric"
+                            value={amountDisplay}
+                            onChange={handleAmountChange}
+                            placeholder="Jumlah (Rp)"
+                            required
+                            className="input font-bold text-lg"
+                        />
+                        <input type="hidden" name="amount" value={amountRaw} />
+                    </div>
+
+                    {/* Description */}
+                    <div className="mb-8">
+                        <input
+                            type="text"
+                            name="description"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder={isTransfer ? "Keterangan (contoh: Tarik tunai BRImo)" : "Deskripsi (opsional)"}
+                            className="input"
+                        />
+                    </div>
+
+                    <button type="submit" disabled={loading} className="btn-primary w-full justify-center active:scale-95 py-3.5">
+                        {loading
+                            ? "Menyimpan..."
+                            : isTransfer
+                                ? "Transfer Sekarang"
+                                : "Simpan Transaksi"}
+                    </button>
+                </form>
             </div>
-
-            {/* Description */}
-            <div className="mb-4">
-                <input
-                    type="text"
-                    name="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder={isTransfer ? "Keterangan (contoh: Tarik tunai BRImo)" : "Deskripsi (opsional)"}
-                    className="input"
-                />
-            </div>
-
-            <button type="submit" disabled={loading} className="btn-primary w-full justify-center">
-                {loading
-                    ? "Menyimpan..."
-                    : isTransfer
-                        ? "Transfer Sekarang"
-                        : "Simpan Transaksi"}
-            </button>
-        </form>
+        </div>
     );
 }

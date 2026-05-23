@@ -94,14 +94,14 @@ export default function FinanceChart({ transactions }) {
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
             return (
-                <div className="glass p-4 rounded-xl border border-white/5 shadow-xl">
-                    <p className="font-semibold mb-2">{label}</p>
+                <div className="bg-zinc-800 p-4 rounded-2xl border border-zinc-700 shadow-xl">
+                    <p className="font-semibold mb-2 text-zinc-50 text-sm">{label}</p>
                     {payload.map((entry, index) => (
-                        <div key={index} className="flex items-center justify-between gap-4 mb-1 text-sm">
+                        <div key={index} className="flex items-center justify-between gap-4 mb-1 text-xs">
                             <span style={{ color: entry.color }}>
                                 {entry.name === "income" ? "Pemasukan" : "Pengeluaran"}
                             </span>
-                            <span className="font-bold">
+                            <span className="font-bold text-zinc-50">
                                 Rp {entry.value.toLocaleString("id-ID")}
                             </span>
                         </div>
@@ -113,25 +113,25 @@ export default function FinanceChart({ transactions }) {
     };
 
     return (
-        <div className="card flex flex-col">
-            <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div>
-                    <h3 className="text-lg font-semibold flex items-center gap-2">
-                        <Activity className="w-5 h-5 text-accent" />
+                    <h3 className="text-base font-semibold flex items-center gap-2 text-zinc-50">
+                        <Activity className="w-5 h-5 text-emerald-500" />
                         Analisis Arus Kas
                     </h3>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="text-xs text-zinc-400 mt-1">
                         Statistik {periodLabel[period]}
                     </p>
                 </div>
-                <div className="flex gap-1 bg-surface rounded-xl p-1 border border-border">
+                <div className="flex gap-1 bg-zinc-950/50 rounded-xl p-1 border border-zinc-800/50 self-start sm:self-auto">
                     {PERIODS.map((p) => (
                         <button
                             key={p.key}
                             onClick={() => setPeriod(p.key)}
                             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${period === p.key
-                                    ? "bg-accent/15 text-accent border border-accent/30"
-                                    : "text-muted-foreground hover:text-foreground"
+                                    ? "bg-emerald-500/15 text-emerald-500 border border-emerald-500/30"
+                                    : "text-zinc-400 hover:text-zinc-50"
                                 }`}
                         >
                             {p.label}
@@ -156,27 +156,35 @@ export default function FinanceChart({ transactions }) {
                                 <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
                             </linearGradient>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#27272a" />
                         <XAxis
                             dataKey="name"
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fill: "#64748b", fontSize: 11 }}
+                            tick={{ fill: "#a1a1aa", fontSize: 10 }}
                             dy={10}
-                            interval={period === "1m" ? 4 : 0}
+                            interval={period === "1m" ? 4 : period === "7d" ? 1 : 0}
+                            tickFormatter={(value) => {
+                                // Shorten the 7d format on the tick without modifying the tooltip label
+                                if (period === "7d") {
+                                    return value.split(' ')[0]; // E.g. "Sen 18/5" -> "Sen"
+                                }
+                                return value;
+                            }}
                         />
                         <YAxis
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fill: "#64748b", fontSize: 12 }}
+                            tick={{ fill: "#a1a1aa", fontSize: 10 }}
                             tickFormatter={(value) => {
                                 if (value >= 1000000) return `${value / 1000000}jt`;
                                 if (value >= 1000) return `${value / 1000}k`;
                                 return value;
                             }}
                             dx={-10}
+                            width={35}
                         />
-                        <Tooltip content={<CustomTooltip />} cursor={{ stroke: "#334155", strokeWidth: 1, strokeDasharray: "4 4" }} />
+                        <Tooltip content={<CustomTooltip />} cursor={{ stroke: "#3f3f46", strokeWidth: 1, strokeDasharray: "4 4" }} />
                         <Area
                             type="monotone"
                             dataKey="income"

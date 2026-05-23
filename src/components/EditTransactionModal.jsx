@@ -134,25 +134,26 @@ export default function EditTransactionModal({ transaction, onClose }) {
     if (typeof document === "undefined") return null;
 
     return createPortal(
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-fade-in" onClick={(e) => {
-            // Prevent clicks inside the modal background from triggering row click
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-zinc-950/80 backdrop-blur-sm animate-fade-in" onClick={(e) => {
             e.stopPropagation();
+            onClose();
         }}>
-            <div className="card w-full max-w-md animate-scale-in relative border-slate-800 shadow-2xl">
+            <div className="drawer-content relative" onClick={(e) => e.stopPropagation()}>
+                <div className="w-12 h-1.5 bg-zinc-800 rounded-full mx-auto mb-6" />
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground transition-colors"
+                    className="absolute top-6 right-6 p-2 text-zinc-500 hover:text-zinc-50 transition-colors"
                 >
                     <X className="w-5 h-5" />
                 </button>
 
-                <h3 className="text-xl font-bold mb-6">Edit Transaksi</h3>
+                <h3 className="text-xl font-bold mb-6 text-zinc-50">Edit Transaksi</h3>
 
                 <form onSubmit={handleSubmit}>
                     {/* Category Select — hidden for transfers */}
                     {!isTransfer && (
                         <div className="mb-4">
-                            <label className="block text-sm font-medium text-muted-foreground mb-1.5">
+                            <label className="block text-sm font-medium text-zinc-400 mb-1.5">
                                 Kategori
                             </label>
                             <select 
@@ -186,7 +187,7 @@ export default function EditTransactionModal({ transaction, onClose }) {
 
                     {/* Amount */}
                     <div className="mb-4">
-                        <label className="block text-sm font-medium text-muted-foreground mb-1.5">
+                        <label className="block text-sm font-medium text-zinc-400 mb-1.5">
                             Jumlah (Rp)
                         </label>
                         <input
@@ -196,14 +197,14 @@ export default function EditTransactionModal({ transaction, onClose }) {
                             onChange={handleAmountChange}
                             placeholder="Jumlah (Rp)"
                             required
-                            className="input font-bold"
+                            className="input font-bold text-lg"
                         />
                         <input type="hidden" name="amount" value={amountRaw} />
                     </div>
 
                     {/* Description */}
-                    <div className="mb-6">
-                        <label className="block text-sm font-medium text-muted-foreground mb-1.5">
+                    <div className="mb-8">
+                        <label className="block text-sm font-medium text-zinc-400 mb-1.5">
                             Deskripsi
                         </label>
                         <input
@@ -219,7 +220,7 @@ export default function EditTransactionModal({ transaction, onClose }) {
                         <button
                             type="button"
                             onClick={handleDelete}
-                            className="p-3 bg-red-500/10 text-red-500 hover:bg-red-500/20 rounded-xl transition-colors"
+                            className="p-3 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 rounded-xl transition-colors active:scale-95"
                             disabled={loading}
                             title="Hapus Transaksi"
                         >
@@ -228,7 +229,7 @@ export default function EditTransactionModal({ transaction, onClose }) {
                         <button
                             type="button"
                             onClick={onClose}
-                            className="btn-ghost flex-1 justify-center"
+                            className="btn-ghost flex-1 justify-center active:scale-95"
                             disabled={loading}
                         >
                             Batal
@@ -236,7 +237,7 @@ export default function EditTransactionModal({ transaction, onClose }) {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="btn-primary flex-1 justify-center"
+                            className="btn-primary flex-1 justify-center active:scale-95"
                         >
                             {loading ? "Menyimpan..." : "Simpan Perubahan"}
                         </button>

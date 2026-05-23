@@ -1,23 +1,23 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0b0f19;
-  --foreground: #f8fafc;
-  --card: #121826;
-  --card-hover: #1a2235;
-  --border: #1e293b;
-  --border-hover: #334155;
+  --background: #09090b;
+  --foreground: #fafafa;
+  --card: #18181b;
+  --card-hover: #27272a;
+  --border: #27272a;
+  --border-hover: #3f3f46;
   --accent: #10b981;
   --accent-hover: #059669;
   --accent-glow: rgba(16, 185, 129, 0.15);
-  --danger: #ef4444;
-  --danger-hover: #dc2626;
+  --danger: #f43f5e;
+  --danger-hover: #e11d48;
   --income: #10b981;
-  --expense: #ef4444;
-  --muted: #475569;
-  --muted-foreground: #94a3b8;
-  --surface: #0f172a;
-  --overlay: rgba(0, 0, 0, 0.7);
+  --expense: #f43f5e;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  --surface: #18181b;
+  --overlay: rgba(9, 9, 11, 0.8);
 }
 
 @theme inline {
@@ -304,4 +304,25 @@ select.input {
   width: 100%;
   max-width: 28rem;
   animation: scaleIn 0.3s ease-out;
+}
+
+/* ========== Drawer (Bottom Sheet) ========== */
+.drawer-content {
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  border-top-left-radius: 1.5rem;
+  border-top-right-radius: 1.5rem;
+  padding: 2rem 1.5rem;
+  width: 100%;
+  max-width: 28rem; /* matches max-w-md */
+  margin-top: auto;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Safe area for mobile */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 1rem);
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 1rem);
 }

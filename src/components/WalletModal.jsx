@@ -33,26 +33,28 @@ export default function WalletModal({ wallet, onClose }) {
     };
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-zinc-950/80 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+            <div className="drawer-content relative" onClick={(e) => e.stopPropagation()}>
+                <div className="w-12 h-1.5 bg-zinc-800 rounded-full mx-auto mb-6" />
+                <button
+                    onClick={onClose}
+                    className="absolute top-6 right-6 p-2 text-zinc-500 hover:text-zinc-50 transition-colors"
+                >
+                    <X className="w-5 h-5" />
+                </button>
+
                 {/* Header */}
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-bold flex items-center gap-2">
-                        <Wallet className="w-5 h-5 text-accent" />
+                <div className="mb-6">
+                    <h2 className="text-xl font-bold flex items-center gap-2 text-zinc-50">
+                        <Wallet className="w-5 h-5 text-emerald-500" />
                         {isEdit ? "Edit Dompet" : "Tambah Dompet"}
                     </h2>
-                    <button
-                        onClick={onClose}
-                        className="p-1.5 rounded-lg text-muted hover:text-foreground hover:bg-surface transition-all"
-                    >
-                        <X className="w-5 h-5" />
-                    </button>
                 </div>
 
                 <form onSubmit={handleSubmit}>
                     {/* Name */}
                     <div className="mb-4">
-                        <label className="block text-sm text-muted-foreground mb-1.5">
+                        <label className="block text-sm text-zinc-400 mb-1.5">
                             Nama Dompet
                         </label>
                         <input
@@ -66,8 +68,8 @@ export default function WalletModal({ wallet, onClose }) {
                     </div>
 
                     {/* Type */}
-                    <div className="mb-6">
-                        <label className="block text-sm text-muted-foreground mb-1.5">
+                    <div className="mb-8">
+                        <label className="block text-sm text-zinc-400 mb-1.5">
                             Jenis
                         </label>
                         <select
@@ -83,10 +85,10 @@ export default function WalletModal({ wallet, onClose }) {
                     </div>
 
                     <div className="flex gap-3">
-                        <button type="button" onClick={onClose} className="btn-ghost flex-1 justify-center">
+                        <button type="button" onClick={onClose} className="btn-ghost flex-1 justify-center active:scale-95">
                             Batal
                         </button>
-                        <button type="submit" disabled={loading} className="btn-primary flex-1 justify-center">
+                        <button type="submit" disabled={loading} className="btn-primary flex-1 justify-center active:scale-95">
                             {loading ? "Menyimpan..." : isEdit ? "Simpan" : "Tambah"}
                         </button>
                     </div>
