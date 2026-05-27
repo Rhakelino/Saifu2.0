@@ -64,6 +64,10 @@ export default function AddTransactionForm({ wallets, onClose }) {
             router.refresh();
 
             toast.success("Transaksi berhasil disimpan.");
+            
+            if (onClose) {
+                onClose();
+            }
 
         } catch (err) {
             toast.error(err.message || "Gagal menyimpan transaksi");
