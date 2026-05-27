@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createTransaction, transferBetweenWallets } from "@/actions/transaction-actions";
 import { Plus, TrendingUp, TrendingDown, ArrowLeftRight, X } from "lucide-react";
-import Swal from "sweetalert2";
+import { toast } from "sonner";
 
 export default function AddTransactionForm({ wallets, onClose }) {
     const router = useRouter();
@@ -63,37 +63,10 @@ export default function AddTransactionForm({ wallets, onClose }) {
 
             router.refresh();
 
-            Swal.fire({
-                title: "Berhasil!",
-                text: "Transaksi berhasil disimpan.",
-                icon: "success",
-                timer: 2500,
-                timerProgressBar: true,
-                showConfirmButton: false,
-                toast: true,
-                position: "bottom-end",
-                background: "#18181b",
-                color: "#fafafa",
-                iconColor: "#22c55e",
-                customClass: {
-                    popup: "rounded-xl border border-zinc-700 shadow-2xl mb-4 mr-4",
-                    title: "text-sm font-semibold",
-                }
-            });
+            toast.success("Transaksi berhasil disimpan.");
 
         } catch (err) {
-            Swal.fire({
-                title: "Gagal",
-                text: err.message,
-                icon: "error",
-                background: "#18181b",
-                color: "#fafafa",
-                iconColor: "#f43f5e",
-                customClass: {
-                    popup: "rounded-xl border border-zinc-700 shadow-2xl",
-                    confirmButton: "bg-white text-zinc-900 rounded-lg px-5 py-2 text-sm font-semibold",
-                }
-            });
+            toast.error(err.message || "Gagal menyimpan transaksi");
         }
 
         setLoading(false);
@@ -107,7 +80,7 @@ export default function AddTransactionForm({ wallets, onClose }) {
 
     return (
         <div
-            className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-md animate-fade-in"
+            className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/80 animate-fade-in"
             onClick={onClose}
         >
             <div

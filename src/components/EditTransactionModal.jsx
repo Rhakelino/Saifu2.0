@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { updateTransaction, deleteTransaction } from "@/actions/transaction-actions";
 import { X, Trash2, Edit3 } from "lucide-react";
-import Swal from "sweetalert2";
+import { toast } from "sonner";
 import { createPortal } from "react-dom";
+import ConfirmDialog from "./ConfirmDialog";
 
 export default function EditTransactionModal({ transaction, onClose }) {
     const [loading, setLoading] = useState(false);
@@ -12,6 +13,7 @@ export default function EditTransactionModal({ transaction, onClose }) {
         new Intl.NumberFormat("id-ID").format(transaction.amount)
     );
     const [amountRaw, setAmountRaw] = useState(transaction.amount.toString());
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
     const isTransfer = transaction.type === "transfer";
     const type = transaction.type;
@@ -28,56 +30,21 @@ export default function EditTransactionModal({ transaction, onClose }) {
         setAmountDisplay(formatNumber(e.target.value));
     };
 
-    const handleDelete = async () => {
-        Swal.fire({
-            title: "Hapus Transaksi?",
-            text: "Data yang dihapus tidak bisa dikembalikan!",
-            icon: "warning",
-            showCancelButton: true,
-            background: "#18181b",
-            color: "#fafafa",
-            confirmButtonColor: "#f43f5e",
-            cancelButtonColor: "#27272a",
-            confirmButtonText: "Ya, Hapus",
-            cancelButtonText: "Batal",
-            customClass: {
-                popup: "rounded-2xl border border-zinc-700 shadow-2xl",
-                confirmButton: "rounded-lg px-5 py-2 font-semibold text-sm",
-                cancelButton: "rounded-lg px-5 py-2 font-semibold text-sm text-zinc-300",
-            }
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                setLoading(true);
-                try {
-                    await deleteTransaction(transaction.id);
-                    Swal.fire({
-                        title: "Terhapus!",
-                        text: "Transaksi berhasil dihapus.",
-                        icon: "success",
-                        timer: 2000,
-                        showConfirmButton: false,
-                        toast: true,
-                        position: "bottom-end",
-                        background: "#18181b",
-                        color: "#fafafa",
-                        iconColor: "#22c55e",
-                        customClass: {
-                            popup: "rounded-xl border border-zinc-700 shadow-2xl mb-4 mr-4",
-                        }
-                    });
-                    onClose();
-                } catch (err) {
-                    Swal.fire({
-                        title: "Gagal",
-                        text: err.message,
-                        icon: "error",
-                        background: "#18181b",
-                        color: "#fafafa",
-                    });
-                }
-                setLoading(false);
-            }
-        });
+    const handleDelete = () => {
+        setIsConfirmOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        setLoading(true);
+        try {
+            await deleteTransaction(transaction.id);
+            toast.success("Transaksi berhasil dihapus.");
+            onClose();
+        } catch (err) {
+            toast.error(err.message || "Gagal menghapus transaksi.");
+        }
+        setLoading(false);
+        setIsConfirmOpen(false);
     };
 
     const handleSubmit = async (e) => {
@@ -89,38 +56,10 @@ export default function EditTransactionModal({ transaction, onClose }) {
             formData.append("transactionId", transaction.id);
             await updateTransaction(formData);
 
-            Swal.fire({
-                title: "Berhasil!",
-                text: "Perubahan transaksi disimpan.",
-                icon: "success",
-                timer: 2500,
-                timerProgressBar: true,
-                showConfirmButton: false,
-                toast: true,
-                position: "bottom-end",
-                background: "#18181b",
-                color: "#fafafa",
-                iconColor: "#22c55e",
-                customClass: {
-                    popup: "rounded-xl border border-zinc-700 shadow-2xl mb-4 mr-4",
-                    title: "text-sm font-semibold",
-                }
-            });
-
+            toast.success("Perubahan transaksi disimpan.");
             onClose();
         } catch (err) {
-            Swal.fire({
-                title: "Gagal",
-                text: err.message,
-                icon: "error",
-                background: "#18181b",
-                color: "#fafafa",
-                iconColor: "#f43f5e",
-                customClass: {
-                    popup: "rounded-xl border border-zinc-700 shadow-2xl",
-                    confirmButton: "bg-white text-zinc-900 rounded-lg px-5 py-2 text-sm font-semibold",
-                }
-            });
+            toast.error(err.message || "Gagal menyimpan perubahan");
         }
 
         setLoading(false);
@@ -130,7 +69,7 @@ export default function EditTransactionModal({ transaction, onClose }) {
 
     return createPortal(
         <div
-            className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-md animate-fade-in"
+            className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/80 animate-fade-in"
             onClick={(e) => { e.stopPropagation(); onClose(); }}
         >
             <div
@@ -246,6 +185,15 @@ export default function EditTransactionModal({ transaction, onClose }) {
                     </div>
                 </form>
             </div>
+
+            <ConfirmDialog 
+                isOpen={isConfirmOpen}
+                onClose={() => setIsConfirmOpen(false)}
+                onConfirm={confirmDelete}
+                title="Hapus Transaksi?"
+                description="Data yang dihapus tidak bisa dikembalikan!"
+                isLoading={loading}
+            />
         </div>,
         document.body
     );

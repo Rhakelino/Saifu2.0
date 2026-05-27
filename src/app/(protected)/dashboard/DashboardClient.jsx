@@ -52,24 +52,30 @@ export default function DashboardClient({
 
                 <div className="grid grid-cols-2 gap-3">
                     {/* Income */}
-                    <div className="rounded-lg bg-zinc-950/60 border border-zinc-800 p-4 flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                            <ArrowUpRight className="w-4 h-4 text-emerald-400" />
+                    <div className="rounded-lg bg-zinc-950/60 border border-zinc-800 p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 overflow-hidden">
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                            <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                                <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
+                            </div>
+                            <p className="text-[9px] sm:text-[10px] font-bold text-zinc-500 uppercase tracking-wider block sm:hidden">Pemasukan</p>
                         </div>
-                        <div>
-                            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-0.5">Pemasukan</p>
-                            <p className="text-sm font-bold text-emerald-400">{formatCurrency(totalIncome)}</p>
+                        <div className="min-w-0 w-full">
+                            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-0.5 hidden sm:block">Pemasukan</p>
+                            <p className="text-sm sm:text-[15px] font-bold text-emerald-400 truncate" title={formatCurrency(totalIncome)}>{formatCurrency(totalIncome)}</p>
                         </div>
                     </div>
 
                     {/* Expense */}
-                    <div className="rounded-lg bg-zinc-950/60 border border-zinc-800 p-4 flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shrink-0">
-                            <ArrowDownRight className="w-4 h-4 text-rose-400" />
+                    <div className="rounded-lg bg-zinc-950/60 border border-zinc-800 p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 overflow-hidden">
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                            <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shrink-0">
+                                <ArrowDownRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-400" />
+                            </div>
+                            <p className="text-[9px] sm:text-[10px] font-bold text-zinc-500 uppercase tracking-wider block sm:hidden">Pengeluaran</p>
                         </div>
-                        <div>
-                            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-0.5">Pengeluaran</p>
-                            <p className="text-sm font-bold text-rose-400">{formatCurrency(totalExpense)}</p>
+                        <div className="min-w-0 w-full">
+                            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-0.5 hidden sm:block">Pengeluaran</p>
+                            <p className="text-sm sm:text-[15px] font-bold text-rose-400 truncate" title={formatCurrency(totalExpense)}>{formatCurrency(totalExpense)}</p>
                         </div>
                     </div>
                 </div>

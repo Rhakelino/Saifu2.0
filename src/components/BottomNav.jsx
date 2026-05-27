@@ -19,10 +19,7 @@ export default function BottomNav({ wallets }) {
     return (
         <>
             {/* Bottom Nav */}
-            <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
-                {/* Blur backdrop */}
-                <div className="absolute inset-0 bg-zinc-950/95 backdrop-blur-xl border-t border-zinc-800" />
-
+            <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-zinc-950 border-t border-zinc-800">
                 <div className="relative flex items-center justify-around h-20 px-6 pb-safe max-w-md mx-auto">
                     {navItems.map((item, i) => {
                         if (item.isFab) {
@@ -30,7 +27,7 @@ export default function BottomNav({ wallets }) {
                                 <button
                                     key="fab"
                                     onClick={() => setIsAddOpen(true)}
-                                    className="relative -top-4 flex items-center justify-center w-14 h-14 rounded-full bg-white text-zinc-900 shadow-2xl shadow-white/10 hover:bg-zinc-200 active:scale-95 transition-all duration-200 border-[3px] border-zinc-950"
+                                    className="relative -top-4 flex items-center justify-center w-14 h-14 rounded-full bg-white text-zinc-900 border-[3px] border-zinc-950 hover:bg-zinc-200 active:scale-95 transition-transform"
                                 >
                                     <Plus className="w-6 h-6" />
                                 </button>

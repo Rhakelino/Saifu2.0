@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Finance App - Beranda</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS variables from design.md */
+        :root {
+            /* Background */
+            --bg-base:        #0A0A0A;   /* Hitam utama — latar belakang app */
+            --bg-card:        #141414;   /* Hitam card — sedikit lebih terang */
+            --bg-elevated:    #1E1E1E;   /* Hitam elevated — modal, dropdown */
+            --bg-input:       #1A1A1A;   /* Hitam input field */
+
+            /* Border */
+            --border-subtle:  #2A2A2A;   /* Garis tipis antar section */
+            --border-default: #383838;   /* Border card dan elemen interaktif */
+            --border-strong:  #505050;   /* Border focused/active state */
+
+            /* Teks */
+            --text-primary:   #F5F5F5;   /* Putih utama — judul, angka besar */
+            --text-secondary: #A0A0A0;   /* Abu terang — label, caption */
+            --text-tertiary:  #606060;   /* Abu gelap — placeholder, disabled */
+            --text-inverse:   #0A0A0A;   /* Hitam — teks di atas tombol putih */
+
+            /* Aksen (tetap monokrom) */
+            --accent-white:   #FFFFFF;   /* Tombol CTA utama */
+            --accent-dim:     #D0D0D0;   /* State hover tombol putih */
+
+            /* Semantik (hanya kecerahan, bukan hue) */
+            --positive:       #E8E8E8;   /* Pemasukan — putih terang */
+            --negative:       #707070;   /* Pengeluaran — abu-abu gelap */
+            --chart-line:     #C8C8C8;   /* Garis chart */
+            --chart-fill:     rgba(255,255,255,0.04); /* Fill area chart */
+
+            /* Typography */
+            --font-display: 'Sora', sans-serif;
+            --font-mono:    'DM Mono', monospace;
+
+            /* Spacing & Layout */
+            --space-xs:   4px;
+            --space-sm:   8px;
+            --space-md:   16px;
+            --space-lg:   24px;
+            --space-xl:   32px;
+            --space-2xl:  48px;
+
+            --radius-sm:  8px;
+            --radius-md:  14px;
+            --radius-lg:  20px;
+            --radius-pill: 999px;
+
+            --page-padding: 20px;        /* Padding kiri-kanan halaman */
+            --card-padding: 20px 20px;   /* Padding dalam card */
+            --safe-area-bottom: env(safe-area-inset-bottom, 20px);
+        }
+
+        /* Global Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: var(--font-display);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            scroll-behavior: smooth;
+        }
+
+        /* Container for Desktop centering (Mobile First Scale Up) */
+        .app-container {
+            width: 100%;
+            max-width: 430px;
+            position: relative;
+            background-color: var(--bg-base);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            box-shadow: 0 0 40px rgba(255,255,255,0.02);
+            padding-bottom: calc(100px + var(--safe-area-bottom)); /* Space for bottom nav */
+        }
+
+        /* Typography Utilities */
+        .text-hero { font-size: 36px; font-weight: 700; line-height: 1.2; }
+        .text-title { font-size: 20px; font-weight: 600; line-height: 1.2; }
+        .text-body { font-size: 14px; font-weight: 400; line-height: 1.6; }
+        .text-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.12em; line-height: 1.2; }
+        .text-mono-lg { font-family: var(--font-mono); font-size: 18px; font-weight: 500; }
+        .text-mono-sm { font-family: var(--font-mono); font-size: 12px; font-weight: 400; }
+        .font-mono { font-family: var(--font-mono); }
+
+        .text-primary { color: var(--text-primary); }
+        .text-secondary { color: var(--text-secondary); }
+        .text-tertiary { color: var(--text-tertiary); }
+        .text-inverse { color: var(--text-inverse); }
+
+        /* Skeleton Animation */
+        @keyframes shimmer {
+            0%   { background-position: -200% 0; }
+            100% { background-position:  200% 0; }
+        }
+        .skeleton {
+            background: linear-gradient(
+                90deg,
+                var(--bg-elevated) 25%,
+                var(--border-default) 50%,
+                var(--bg-elevated) 75%
+            );
+            background-size: 200% 100%;
+            animation: shimmer 1.2s infinite linear;
+            border-radius: var(--radius-sm);
+            color: transparent !important;
+            pointer-events: none;
+        }
+        
+        .skeleton * {
+            visibility: hidden;
+        }
+        
+        /* Loading overlay states */
+        .is-loading .content-real {
+            display: none;
+        }
+        .is-loading .content-skeleton {
+            display: block;
+        }
+        .content-skeleton {
+            display: none;
+        }
+
+        /* Animations */
+        @keyframes fadeInSlideUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-mount {
+            animation: fadeInSlideUp 300ms ease-out forwards;
+        }
+
+        /* 5.1 Header / App Bar */
+        .header {
+            height: 56px;
+            padding: 14px var(--page-padding);
+            background-color: rgba(10, 10, 10, 0.85); /* Slightly transparent --bg-base */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s ease;
+        }
+        .header.scrolled {
+            border-bottom-color: var(--border-subtle);
+        }
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            border: 2px solid var(--text-primary);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1.5px solid var(--border-default);
+            background-color: var(--bg-elevated);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        /* Main Content */
+        main {
+            padding: var(--space-md) var(--page-padding);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xl);
+        }
+
+        /* 5.2 Balance Card */
+        .balance-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 24px 20px;
+        }
+        .balance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-md);
+        }
+        .btn-export {
+            background: transparent;
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-pill);
+            padding: 4px 12px;
+            color: var(--text-secondary);
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            font-family: var(--font-display);
+        }
+        .btn-export:hover {
+            background-color: var(--bg-elevated);
+        }
+        .balance-amount {
+            margin-bottom: var(--space-lg);
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+        .balance-divider {
+            border-top: 1px solid var(--border-subtle);
+            margin: 0 -20px var(--space-lg) -20px;
+        }
+        .stat-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-md);
+        }
+        .stat-card {
+            background-color: var(--bg-elevated);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+        .stat-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .stat-icon.income { background-color: rgba(255,255,255,0.1); color: var(--text-primary); }
+        .stat-icon.expense { background-color: rgba(255,255,255,0.06); color: var(--text-secondary); }
+        .stat-details {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .stat-label { font-size: 10px; text-transform: uppercase; color: var(--text-tertiary); letter-spacing: 0.05em; font-weight: 500; }
+        .stat-value { font-size: 14px; }
+
+        /* 5.3 Chart Section */
+        .chart-section {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-subtle);
+            padding: 20px;
+        }
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+        }
+        .chart-title {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+        .tab-filter {
+            background-color: var(--bg-elevated);
+            border-radius: var(--radius-pill);
+            display: flex;
+            padding: 2px;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-tertiary);
+            padding: 4px 12px;
+            font-size: 12px;
+            font-family: var(--font-display);
+            font-weight: 500;
+            border-radius: var(--radius-pill);
+            cursor: pointer;
+            transition: all 150ms ease;
+        }
+        .tab-btn.active {
+            background-color: var(--accent-white);
+            color: var(--text-inverse);
+        }
+        .chart-container {
+            position: relative;
+            height: 160px;
+            width: 100%;
+        }
+        .chart-y-axis {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding-bottom: 20px;
+            color: var(--text-tertiary);
+            font-size: 11px;
+            font-family: var(--font-mono);
+        }
+        .chart-grid {
+            position: absolute;
+            left: 24px;
+            right: 0;
+            top: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding-bottom: 20px;
+            pointer-events: none;
+        }
+        .grid-line {
+            width: 100%;
+            border-top: 1px dashed var(--border-subtle);
+            height: 0;
+            margin-top: 6px;
+        }
+        .chart-svg-container {
+            position: absolute;
+            left: 24px;
+            right: 0;
+            top: 0;
+            height: calc(100% - 20px);
+        }
+        .chart-svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+        .chart-svg path.line {
+            fill: none;
+            stroke: var(--chart-line);
+            stroke-width: 1.5;
+            transition: d 400ms ease-in-out;
+        }
+        .chart-svg path.area {
+            fill: var(--chart-fill);
+            transition: d 400ms ease-in-out;
+        }
+        .chart-x-axis {
+            position: absolute;
+            left: 24px;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-tertiary);
+            font-size: 10px;
+        }
+
+        /* 5.5 Bottom Navigation & FAB */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 430px;
+            height: calc(68px + var(--safe-area-bottom));
+            background-color: rgba(20, 20, 20, 0.85);
+            border-top: 1px solid var(--border-subtle);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 0 var(--page-padding);
+            padding-top: 12px;
+            z-index: 100;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-tertiary);
+            text-decoration: none;
+            width: 64px;
+            position: relative;
+        }
+        .nav-icon {
+            font-size: 20px;
+            transition: all 120ms ease;
+        }
+        .nav-item.active {
+            color: var(--text-primary);
+        }
+        .nav-item.active .nav-icon {
+            transform: scale(1.1);
+        }
+        .nav-label {
+            font-size: 10px;
+            opacity: 0;
+            transition: opacity 120ms ease;
+            position: absolute;
+            bottom: -16px;
+        }
+        .nav-item.active .nav-label {
+            opacity: 1;
+        }
+        .nav-indicator {
+            width: 4px;
+            height: 4px;
+            background-color: var(--text-primary);
+            border-radius: 50%;
+            position: absolute;
+            bottom: -10px;
+            opacity: 0;
+        }
+        .nav-item.active .nav-indicator {
+            opacity: 1;
+        }
+
+        .nav-item.fab-space {
+            width: 64px;
+            pointer-events: none;
+        }
+
+        /* 5.4 FAB */
+        .fab-wrapper {
+            position: absolute;
+            left: 50%;
+            top: -24px;
+            transform: translateX(-50%);
+            z-index: 110;
+        }
+        .fab {
+            width: 52px;
+            height: 52px;
+            background-color: var(--accent-white);
+            color: var(--text-inverse);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 24px rgba(255,255,255,0.12);
+            transition: all 100ms ease;
+        }
+        .fab:hover, .fab:active {
+            transform: scale(0.92);
+            box-shadow: 0 2px 12px rgba(255,255,255,0.08);
+        }
+        .fab svg {
+            width: 22px;
+            height: 22px;
+            stroke-width: 2.5px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+    </style>
+</head>
+<body class="is-loading">
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header" id="header">
+            <div class="logo-icon">F</div>
+            <div class="header-actions">
+                <div class="avatar">
+                    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="16" cy="12" r="5" fill="#606060"/>
+                        <path d="M7 28C7 22.4772 11.4772 18 17 18H15C20.5228 18 25 22.4772 25 28" stroke="#606060" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <!-- Balance Card -->
+            <section class="balance-card animate-mount" style="animation-delay: 0ms;">
+                <div class="balance-header">
+                    <span class="text-label text-tertiary">TOTAL SALDO</span>
+                    <button class="btn-export">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Export
+                    </button>
+                </div>
+                
+                <div class="content-skeleton">
+                    <div class="skeleton" style="height: 44px; width: 60%; margin-bottom: var(--space-lg); border-radius: var(--radius-sm);"></div>
+                    <div class="balance-divider" style="opacity: 0.5;"></div>
+                    <div class="stat-row">
+                        <div class="skeleton" style="height: 64px; border-radius: var(--radius-md);"></div>
+                        <div class="skeleton" style="height: 64px; border-radius: var(--radius-md);"></div>
+                    </div>
+                </div>
+
+                <div class="content-real">
+                    <div class="balance-amount">
+                        <span class="text-title">Rp</span>
+                        <span class="text-hero font-mono" id="total-saldo">0</span>
+                    </div>
+                    <div class="balance-divider"></div>
+                    <div class="stat-row">
+                        <div class="stat-card">
+                            <div class="stat-icon income">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="7" y1="17" x2="17" y2="7"></line>
+                                    <polyline points="7 7 17 7 17 17"></polyline>
+                                </svg>
+                            </div>
+                            <div class="stat-details">
+                                <span class="stat-label">PEMASUKAN</span>
+                                <span class="stat-value text-primary font-mono" id="total-income">Rp 0</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon expense">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="7" y1="7" x2="17" y2="17"></line>
+                                    <polyline points="17 7 17 17 7 17"></polyline>
+                                </svg>
+                            </div>
+                            <div class="stat-details">
+                                <span class="stat-label">PENGELUARAN</span>
+                                <span class="stat-value text-secondary font-mono" id="total-expense">Rp 0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Chart Section -->
+            <section class="chart-section animate-mount" style="animation-delay: 100ms;">
+                <div class="chart-header">
+                    <div class="chart-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                            <polyline points="16 7 22 7 22 13"></polyline>
+                        </svg>
+                        <span class="text-title">Tren Keuangan</span>
+                    </div>
+                    <div class="tab-filter" id="chart-tabs">
+                        <button class="tab-btn active" data-range="7H">7H</button>
+                        <button class="tab-btn" data-range="1B">1B</button>
+                        <button class="tab-btn" data-range="1T">1T</button>
+                    </div>
+                </div>
+
+                <div class="content-skeleton">
+                     <div class="skeleton" style="height: 160px; width: 100%; border-radius: var(--radius-sm);"></div>
+                </div>
+
+                <div class="content-real chart-container">
+                    <div class="chart-y-axis">
+                        <span>4M</span>
+                        <span>3M</span>
+                        <span>2M</span>
+                        <span>1M</span>
+                        <span>0</span>
+                    </div>
+                    <div class="chart-grid">
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line" style="visibility: hidden;"></div>
+                    </div>
+                    <div class="chart-svg-container">
+                        <svg class="chart-svg" preserveAspectRatio="none" id="trend-chart"></svg>
+                    </div>
+                    <div class="chart-x-axis" id="chart-x-axis">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom Navigation Bar -->
+        <nav class="bottom-nav">
+            <a href="#" class="nav-item">
+                <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                <span class="nav-indicator"></span>
+                <span class="nav-label">Notif</span>
+            </a>
+            <a href="#" class="nav-item active">
+                <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                <span class="nav-indicator"></span>
+                <span class="nav-label">Beranda</span>
+            </a>
+            
+            <div class="nav-item fab-space"></div>
+
+            <a href="#" class="nav-item">
+                <!-- Empty icon space according to design -->
+            </a>
+            <a href="#" class="nav-item">
+                <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                <span class="nav-indicator"></span>
+                <span class="nav-label">Dompet</span>
+            </a>
+
+            <!-- FAB -->
+            <div class="fab-wrapper">
+                <button class="fab" aria-label="Tambah Transaksi">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <script>
+        // Header scroll effect
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 10) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Number Formatting (Rupiah)
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID').format(number).replace(/,/g, '.');
+        }
+
+        // Animation setup: Counter
+        function animateValue(obj, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const easeProgress = 1 - Math.pow(1 - progress, 3);
+                const currentVal = Math.floor(easeProgress * (end - start) + start);
+                
+                if (obj.id === 'total-saldo') {
+                    obj.innerHTML = formatRupiah(currentVal);
+                } else {
+                    obj.innerHTML = 'Rp ' + formatRupiah(currentVal);
+                }
+                
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    if (obj.id === 'total-saldo') {
+                        obj.innerHTML = formatRupiah(end);
+                    } else {
+                        obj.innerHTML = 'Rp ' + formatRupiah(end);
+                    }
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // Mock Data
+        const financeData = {
+            saldo: 12500000,
+            pemasukan: 15000000,
+            pengeluaran: 2500000,
+            chartRanges: {
+                '7H': {
+                    labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
+                    data: [1.2, 1.5, 1.4, 2.1, 1.8, 2.5, 3.2]
+                },
+                '1B': {
+                    labels: ['W1', 'W2', 'W3', 'W4'],
+                    data: [1.5, 2.8, 2.0, 3.5]
+                },
+                '1T': {
+                    labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                    data: [2.0, 2.5, 3.1, 3.8]
+                }
+            }
+        };
+
+        // Draw Chart (SVG)
+        function drawChart(rangeKey) {
+            const chartData = financeData.chartRanges[rangeKey];
+            const maxVal = 4;
+            const svg = document.getElementById('trend-chart');
+            const svgWidth = svg.clientWidth || 340; 
+            const svgHeight = svg.clientHeight || 140; 
+
+            let pathD = "";
+            let areaD = "";
+            const pointsCount = chartData.data.length;
+            const stepX = svgWidth / Math.max(1, (pointsCount - 1));
+
+            chartData.data.forEach((val, index) => {
+                const y = svgHeight - (val / maxVal) * svgHeight;
+                const x = index * stepX;
+
+                if (index === 0) {
+                    pathD += `M ${x} ${y} `;
+                } else {
+                    pathD += `L ${x} ${y} `;
+                }
+            });
+
+            areaD = pathD + `L ${svgWidth} ${svgHeight} L 0 ${svgHeight} Z`;
+
+            svg.innerHTML = `
+                <path class="area" d="${areaD}"></path>
+                <path class="line" d="${pathD}"></path>
+            `;
+
+            const xAxisContainer = document.getElementById('chart-x-axis');
+            xAxisContainer.innerHTML = chartData.labels.map(lbl => `<span>${lbl}</span>`).join('');
+        }
+
+        // Tab Switching
+        const tabs = document.querySelectorAll('.tab-btn');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                tabs.forEach(t => t.classList.remove('active'));
+                e.target.classList.add('active');
+                drawChart(e.target.dataset.range);
+            });
+        });
+
+        // Bottom Nav interactions
+        const navItems = document.querySelectorAll('.nav-item:not(.fab-space)');
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                navItems.forEach(n => n.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+            });
+        });
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', () => {
+            // Skeleton shimmer 1.2s
+            setTimeout(() => {
+                document.body.classList.remove('is-loading');
+                
+                // Animate Numbers
+                animateValue(document.getElementById('total-saldo'), 0, financeData.saldo, 600);
+                animateValue(document.getElementById('total-income'), 0, financeData.pemasukan, 600);
+                animateValue(document.getElementById('total-expense'), 0, financeData.pengeluaran, 600);
+                
+                // Draw initial chart
+                requestAnimationFrame(() => drawChart('7H'));
+            }, 1200);
+        });
+
+        // Handle window resize for chart redrawing
+        window.addEventListener('resize', () => {
+            const activeTab = document.querySelector('.tab-btn.active');
+            if (activeTab && !document.body.classList.contains('is-loading')) {
+                drawChart(activeTab.dataset.range);
+            }
+        });
+    </script>
+</body>
+</html>

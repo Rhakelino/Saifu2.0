@@ -12,10 +12,15 @@ export const metadata = {
         "Kelola keuangan pribadimu dengan aman, cepat, dan modern. Multi-wallet management, pencatatan transaksi, dan saldo real-time.",
 };
 
+import { Toaster } from 'sonner';
+
 export default function RootLayout({ children }) {
     return (
         <html lang="id">
-            <body suppressHydrationWarning className={`${inter.variable} antialiased`}>{children}</body>
+            <body suppressHydrationWarning className={`${inter.variable} antialiased`}>
+                {children}
+                <Toaster theme="dark" position="bottom-center" />
+            </body>
         </html>
     );
 }

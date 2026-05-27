@@ -173,6 +173,7 @@ export default function FinanceChart({ transactions }) {
                             fillOpacity={1}
                             fill="url(#incomeGrad)"
                             activeDot={{ r: 4, fill: "#22c55e", stroke: "#09090b", strokeWidth: 2 }}
+                            isAnimationActive={false}
                         />
                         <Area
                             type="monotone"
@@ -182,6 +183,7 @@ export default function FinanceChart({ transactions }) {
                             fillOpacity={1}
                             fill="url(#expenseGrad)"
                             activeDot={{ r: 4, fill: "#f43f5e", stroke: "#09090b", strokeWidth: 2 }}
+                            isAnimationActive={false}
                         />
                     </AreaChart>
                 </ResponsiveContainer>

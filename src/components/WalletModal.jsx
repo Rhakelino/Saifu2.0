@@ -34,7 +34,7 @@ export default function WalletModal({ wallet, onClose }) {
 
     return (
         <div
-            className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-md animate-fade-in"
+            className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/80 animate-fade-in"
             onClick={onClose}
         >
             <div
