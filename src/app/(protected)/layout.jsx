@@ -3,6 +3,7 @@ import { getWallets } from "@/actions/wallet-actions";
 import { redirect } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
+import OfflineBanner from "@/components/OfflineBanner";
 
 export default async function ProtectedLayout({ children }) {
     const session = await getSession();
@@ -15,6 +16,7 @@ export default async function ProtectedLayout({ children }) {
 
     return (
         <div className="min-h-screen bg-background flex flex-col">
+            <OfflineBanner />
             <Navbar wallets={wallets} />
             <main className="flex-1 w-full max-w-7xl mx-auto pb-28 md:pb-10 pt-5 px-4 sm:px-6 lg:px-8">
                 {children}
@@ -23,3 +25,4 @@ export default async function ProtectedLayout({ children }) {
         </div>
     );
 }
+
