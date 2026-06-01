@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
 import OfflineBanner from "@/components/OfflineBanner";
+import InstallPrompt from "@/components/InstallPrompt";
 
 export default async function ProtectedLayout({ children }) {
     const session = await getSession();
@@ -22,6 +23,7 @@ export default async function ProtectedLayout({ children }) {
                 {children}
             </main>
             <BottomNav wallets={wallets} />
+            <InstallPrompt />
         </div>
     );
 }
