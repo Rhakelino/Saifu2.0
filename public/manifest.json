@@ -3,7 +3,7 @@
   "short_name": "Saifu",
   "description": "Kelola keuangan pribadimu dengan aman, cepat, dan modern. Multi-wallet management, pencatatan transaksi, dan saldo real-time.",
   "id": "/",
-  "start_url": "/",
+  "start_url": "/dashboard",
   "scope": "/",
   "display": "standalone",
   "background_color": "#09090b",

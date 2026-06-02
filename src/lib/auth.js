@@ -13,6 +13,14 @@ export const auth = betterAuth({
             verification: schema.verification,
         },
     }),
+    session: {
+        expiresIn: 60 * 60 * 24 * 30, // 30 hari (dalam detik)
+        updateAge: 60 * 60 * 24, // Update session setiap 1 hari
+        cookieCache: {
+            enabled: true,
+            maxAge: 60 * 5, // Cache 5 menit (mengurangi DB calls)
+        },
+    },
     socialProviders: {
         google: {
             clientId: process.env.GOOGLE_CLIENT_ID,

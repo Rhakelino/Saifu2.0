@@ -12,13 +12,20 @@ export function middleware(request) {
         pathname.startsWith(route)
     );
 
+    // Redirect ke login jika belum login dan akses halaman protected
     if (isProtected && !sessionCookie) {
         return NextResponse.redirect(new URL("/", request.url));
+    }
+
+    // Redirect ke dashboard jika sudah login dan akses halaman login
+    if (pathname === "/" && sessionCookie) {
+        return NextResponse.redirect(new URL("/dashboard", request.url));
     }
 
     return NextResponse.next();
 }
 
 export const config = {
-    matcher: ["/dashboard/:path*", "/wallet/:path*"],
+    matcher: ["/", "/dashboard/:path*", "/wallet/:path*"],
 };
+
