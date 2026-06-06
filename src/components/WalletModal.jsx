@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createWallet, updateWallet } from "@/actions/wallet-actions";
 import { X, Wallet } from "lucide-react";
 
 export default function WalletModal({ wallet, onClose }) {
+    const queryClient = useQueryClient();
     const isEdit = !!wallet;
-    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const handleEscape = (e) => {
@@ -16,20 +17,25 @@ export default function WalletModal({ wallet, onClose }) {
         return () => document.removeEventListener("keydown", handleEscape);
     }, [onClose]);
 
-    const handleSubmit = async (e) => {
+    const { mutate: submitWallet, isPending: loading } = useMutation({
+        mutationFn: async (formData) => {
+            if (isEdit) {
+                formData.set("id", wallet.id);
+                await updateWallet(formData);
+            } else {
+                await createWallet(formData);
+            }
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["wallets"] });
+            onClose();
+        },
+    });
+
+    const handleSubmit = (e) => {
         e.preventDefault();
-        setLoading(true);
         const formData = new FormData(e.target);
-
-        if (isEdit) {
-            formData.set("id", wallet.id);
-            await updateWallet(formData);
-        } else {
-            await createWallet(formData);
-        }
-
-        setLoading(false);
-        onClose();
+        submitWallet(formData);
     };
 
     return (

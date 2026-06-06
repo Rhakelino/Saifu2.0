@@ -1,26 +1,28 @@
-import { getSession } from "@/lib/session";
-import { getWallets } from "@/actions/wallet-actions";
-import { getTransactions } from "@/actions/transaction-actions";
+"use client";
+
+import { useSession } from "@/lib/auth-client";
+import { useDashboardSummary } from "@/hooks/useDashboardSummary";
 import DashboardClient from "./DashboardClient";
+import { DashboardSkeleton } from "@/components/LoadingSkeleton";
 
-export default async function DashboardPage() {
-    const [session, wallets, transactions] = await Promise.all([
-        getSession(),
-        getWallets(),
-        getTransactions(),
-    ]);
+export default function DashboardPage() {
+    const { data: session } = useSession();
+    const {
+        wallets,
+        transactions,
+        totalBalance,
+        totalIncome,
+        totalExpense,
+        isLoading,
+    } = useDashboardSummary();
 
-    const totalBalance = wallets.reduce((sum, w) => sum + (w.balance || 0), 0);
-    const totalIncome = transactions
-        .filter((t) => t.type === "income")
-        .reduce((sum, t) => sum + t.amount, 0);
-    const totalExpense = transactions
-        .filter((t) => t.type === "expense")
-        .reduce((sum, t) => sum + t.amount, 0);
+    if (isLoading) {
+        return <DashboardSkeleton />;
+    }
 
     return (
         <DashboardClient
-            user={session.user}
+            user={session?.user}
             wallets={wallets}
             transactions={transactions}
             totalBalance={totalBalance}

@@ -1,16 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createTransaction, transferBetweenWallets } from "@/actions/transaction-actions";
 import { Plus, TrendingUp, TrendingDown, ArrowLeftRight, X } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AddTransactionForm({ wallets, onClose }) {
-    const router = useRouter();
+    const queryClient = useQueryClient();
 
     const [type, setType] = useState("expense");
-    const [loading, setLoading] = useState(false);
 
     const [amountDisplay, setAmountDisplay] = useState("");
     const [amountRaw, setAmountRaw] = useState("");
@@ -39,19 +38,19 @@ export default function AddTransactionForm({ wallets, onClose }) {
 
     const isTransfer = type === "transfer";
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-
-        try {
-            const formData = new FormData(e.target);
-
+    const { mutate: submitTransaction, isPending: loading } = useMutation({
+        mutationFn: async (formData) => {
             if (isTransfer) {
                 await transferBetweenWallets(formData);
             } else {
                 formData.set("type", type);
                 await createTransaction(formData);
             }
+        },
+        onSuccess: () => {
+            // Invalidate all related caches so data syncs across pages
+            queryClient.invalidateQueries({ queryKey: ["transactions"] });
+            queryClient.invalidateQueries({ queryKey: ["wallets"] });
 
             setAmountDisplay("");
             setAmountRaw("");
@@ -61,19 +60,21 @@ export default function AddTransactionForm({ wallets, onClose }) {
             setCategory("");
             setDescription("");
 
-            router.refresh();
-
             toast.success("Transaksi berhasil disimpan.");
-            
+
             if (onClose) {
                 onClose();
             }
-
-        } catch (err) {
+        },
+        onError: (err) => {
             toast.error(err.message || "Gagal menyimpan transaksi");
-        }
+        },
+    });
 
-        setLoading(false);
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        submitTransaction(formData);
     };
 
     const typeButtons = [

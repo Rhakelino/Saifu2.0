@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateTransaction, deleteTransaction } from "@/actions/transaction-actions";
 import { X, Trash2, Edit3 } from "lucide-react";
 import { toast } from "sonner";
@@ -8,7 +9,7 @@ import { createPortal } from "react-dom";
 import ConfirmDialog from "./ConfirmDialog";
 
 export default function EditTransactionModal({ transaction, onClose }) {
-    const [loading, setLoading] = useState(false);
+    const queryClient = useQueryClient();
     const [amountDisplay, setAmountDisplay] = useState(
         new Intl.NumberFormat("id-ID").format(transaction.amount)
     );
@@ -30,39 +31,50 @@ export default function EditTransactionModal({ transaction, onClose }) {
         setAmountDisplay(formatNumber(e.target.value));
     };
 
+    const { mutate: doDelete, isPending: deleteLoading } = useMutation({
+        mutationFn: () => deleteTransaction(transaction.id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["transactions"] });
+            queryClient.invalidateQueries({ queryKey: ["wallets"] });
+            toast.success("Transaksi berhasil dihapus.");
+            onClose();
+        },
+        onError: (err) => {
+            toast.error(err.message || "Gagal menghapus transaksi.");
+        },
+        onSettled: () => {
+            setIsConfirmOpen(false);
+        },
+    });
+
+    const { mutate: doUpdate, isPending: updateLoading } = useMutation({
+        mutationFn: (formData) => updateTransaction(formData),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["transactions"] });
+            queryClient.invalidateQueries({ queryKey: ["wallets"] });
+            toast.success("Perubahan transaksi disimpan.");
+            onClose();
+        },
+        onError: (err) => {
+            toast.error(err.message || "Gagal menyimpan perubahan");
+        },
+    });
+
+    const loading = deleteLoading || updateLoading;
+
     const handleDelete = () => {
         setIsConfirmOpen(true);
     };
 
-    const confirmDelete = async () => {
-        setLoading(true);
-        try {
-            await deleteTransaction(transaction.id);
-            toast.success("Transaksi berhasil dihapus.");
-            onClose();
-        } catch (err) {
-            toast.error(err.message || "Gagal menghapus transaksi.");
-        }
-        setLoading(false);
-        setIsConfirmOpen(false);
+    const confirmDelete = () => {
+        doDelete();
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-        setLoading(true);
-
-        try {
-            const formData = new FormData(e.target);
-            formData.append("transactionId", transaction.id);
-            await updateTransaction(formData);
-
-            toast.success("Perubahan transaksi disimpan.");
-            onClose();
-        } catch (err) {
-            toast.error(err.message || "Gagal menyimpan perubahan");
-        }
-
-        setLoading(false);
+        const formData = new FormData(e.target);
+        formData.append("transactionId", transaction.id);
+        doUpdate(formData);
     };
 
     if (typeof document === "undefined") return null;

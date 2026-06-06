@@ -6,11 +6,13 @@ import { LogOut, Coins, Plus } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import AddTransactionForm from "./AddTransactionForm";
+import { useWallets } from "@/hooks/useWallets";
 
-export default function Navbar({ wallets }) {
+export default function Navbar() {
     const { data: session } = useSession();
     const pathname = usePathname();
     const [isAddOpen, setIsAddOpen] = useState(false);
+    const { wallets } = useWallets();
 
     const handleSignOut = async () => {
         await signOut({

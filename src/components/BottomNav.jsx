@@ -5,10 +5,12 @@ import { usePathname } from "next/navigation";
 import { LayoutDashboard, Wallet, Plus } from "lucide-react";
 import { useState } from "react";
 import AddTransactionForm from "./AddTransactionForm";
+import { useWallets } from "@/hooks/useWallets";
 
-export default function BottomNav({ wallets }) {
+export default function BottomNav() {
     const pathname = usePathname();
     const [isAddOpen, setIsAddOpen] = useState(false);
+    const { wallets } = useWallets();
 
     const navItems = [
         { href: "/dashboard", icon: LayoutDashboard, label: "Beranda" },

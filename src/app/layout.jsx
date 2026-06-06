@@ -32,12 +32,15 @@ export const viewport = {
 };
 
 import { Toaster } from 'sonner';
+import QueryProvider from '@/components/providers/QueryProvider';
 
 export default function RootLayout({ children }) {
     return (
         <html lang="id">
             <body suppressHydrationWarning className={`${inter.variable} antialiased`}>
-                {children}
+                <QueryProvider>
+                    {children}
+                </QueryProvider>
                 <Toaster theme="dark" position="bottom-center" />
             </body>
         </html>

@@ -4,7 +4,6 @@ import { db } from "@/lib/db";
 import { transactions } from "@/schema/schema";
 import { getSession } from "@/lib/session";
 import { eq, and, desc } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 
 export async function getTransactions(walletId) {
     const session = await getSession();
@@ -47,8 +46,7 @@ export async function createTransaction(formData) {
         description: description || null,
     });
 
-    revalidatePath("/dashboard");
-    revalidatePath("/wallet");
+
 }
 
 export async function transferBetweenWallets(formData) {
@@ -78,8 +76,7 @@ export async function transferBetweenWallets(formData) {
         description: description || null,
     });
 
-    revalidatePath("/dashboard");
-    revalidatePath("/wallet");
+
 }
 
 export async function deleteTransaction(transactionId) {
@@ -95,8 +92,7 @@ export async function deleteTransaction(transactionId) {
             )
         );
 
-    revalidatePath("/dashboard");
-    revalidatePath("/wallet");
+
 }
 
 export async function updateTransaction(formData) {
@@ -126,6 +122,5 @@ export async function updateTransaction(formData) {
             )
         );
 
-    revalidatePath("/dashboard");
-    revalidatePath("/wallet");
+
 }
