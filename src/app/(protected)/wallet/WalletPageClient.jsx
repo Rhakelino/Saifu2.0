@@ -7,6 +7,7 @@ import WalletModal from "@/components/WalletModal";
 import CategoryPieChart from "@/components/CategoryPieChart";
 import ExportCSV from "@/components/ExportCSV";
 import TransactionItem from "@/components/TransactionItem";
+import { useAnimationKey } from "@/hooks/useAnimationKey";
 
 export default function WalletPageClient({
     wallets,
@@ -19,6 +20,7 @@ export default function WalletPageClient({
     const [showModal, setShowModal] = useState(false);
     const [editWallet, setEditWallet] = useState(null);
     const [showExport, setShowExport] = useState(false);
+    const animKey = useAnimationKey();
 
     const formatCurrency = (amount) =>
         new Intl.NumberFormat("id-ID", {
@@ -41,7 +43,7 @@ export default function WalletPageClient({
     wallets.forEach((w) => (walletMap[w.id] = w.name));
 
     return (
-        <div className="animate-fade-in max-w-2xl mx-auto flex flex-col gap-6">
+        <div key={animKey} className="animate-fade-in max-w-2xl mx-auto flex flex-col gap-6">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>

@@ -6,6 +6,7 @@ import TransactionItem from "@/components/TransactionItem";
 import FinanceChart from "@/components/FinanceChart";
 import ExportCSV from "@/components/ExportCSV";
 import Link from "next/link";
+import { useAnimationKey } from "@/hooks/useAnimationKey";
 
 export default function DashboardClient({
     user,
@@ -16,6 +17,7 @@ export default function DashboardClient({
     totalExpense,
 }) {
     const [showExport, setShowExport] = useState(false);
+    const animKey = useAnimationKey();
 
     const formatCurrency = (amount) =>
         new Intl.NumberFormat("id-ID", {
@@ -30,7 +32,7 @@ export default function DashboardClient({
     const recentTransactions = transactions.slice(0, 5);
 
     return (
-        <div className="animate-fade-in flex flex-col gap-6 max-w-2xl mx-auto">
+        <div key={animKey} className="animate-fade-in flex flex-col gap-6 max-w-2xl mx-auto">
 
             {/* Balance Hero */}
             <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
