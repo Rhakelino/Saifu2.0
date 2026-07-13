@@ -264,19 +264,25 @@ export default function PrintReport({
     };
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <div
+            className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/80 animate-fade-in"
+            onClick={onClose}
+        >
             <div
-                className="bg-card border border-border rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden animate-scale-in flex flex-col"
+                className="bg-card border border-border sm:rounded-2xl w-full max-w-4xl max-h-[90vh] sm:max-h-[85vh] overflow-y-auto animate-slide-up sm:animate-scale-in flex flex-col"
                 onClick={(e) => e.stopPropagation()}
             >
+                {/* Handle (mobile only) */}
+                <div className="w-10 h-1 bg-zinc-700 rounded-full mx-auto my-3 sm:hidden" />
+
                 {/* Modal Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-                    <h2 className="text-lg font-bold flex items-center gap-2">
+                <div className="flex items-center justify-between px-5 py-3 sm:px-6 sm:py-4 border-b border-border">
+                    <h2 className="text-base sm:text-lg font-bold flex items-center gap-2">
                         <Printer className="w-5 h-5 text-accent" />
                         Cetak Laporan Transaksi
                     </h2>
                     <div className="flex items-center gap-2">
-                        <button onClick={handlePrint} className="btn-primary">
+                        <button onClick={handlePrint} className="btn-primary text-sm">
                             <Printer className="w-4 h-4" />
                             Cetak / PDF
                         </button>
@@ -287,7 +293,7 @@ export default function PrintReport({
                 </div>
 
                 {/* Preview */}
-                <div className="overflow-y-auto p-6 bg-white">
+                <div className="p-4 sm:p-6 bg-white">
                     <div ref={printRef}>
                         {/* Header */}
                         <div className="header">
