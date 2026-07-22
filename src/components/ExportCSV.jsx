@@ -222,11 +222,11 @@ export default function ExportCSV({
 
     return (
         <div
-            className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/80 animate-fade-in"
+            className="fixed inset-0 z-[100] flex items-start pt-10 sm:pt-20 justify-center bg-black/80 animate-fade-in"
             onClick={onClose}
         >
             <div
-                className="drawer-content relative w-full max-w-md max-h-[90vh] overflow-y-auto sm:rounded-2xl sm:border sm:border-zinc-800 sm:bg-zinc-900 sm:shadow-2xl sm:p-6 sm:mb-0 sm:max-h-none sm:animate-scale-in"
+                className="drawer-content relative w-full max-w-md max-h-[90vh] overflow-y-auto sm:rounded-2xl sm:border sm:border-zinc-800 sm:bg-zinc-900 sm:shadow-2xl sm:p-6 !mt-0 !mb-0 sm:max-h-[90vh] sm:animate-scale-in"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Handle (mobile only) */}

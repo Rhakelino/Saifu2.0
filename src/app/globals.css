@@ -285,9 +285,15 @@ select.input option {
   padding-bottom: 2rem;
   width: 100%;
   max-width: 480px;
-  margin-top: auto;
   animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.5);
+}
+
+@media (max-width: 639px) {
+  .drawer-content {
+    margin-top: auto;
+    margin-bottom: 5.5rem;
+  }
 }
 
 /* Safe area for mobile */
