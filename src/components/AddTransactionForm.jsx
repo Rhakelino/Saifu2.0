@@ -1,14 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createTransaction, transferBetweenWallets } from "@/actions/transaction-actions";
+import { useCreateTransaction, useTransfer } from "@/hooks/useTransactions";
 import { Plus, TrendingUp, TrendingDown, ArrowLeftRight, X } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AddTransactionForm({ wallets, onClose }) {
-    const queryClient = useQueryClient();
-
     const [type, setType] = useState("expense");
 
     const [amountDisplay, setAmountDisplay] = useState("");
@@ -38,43 +35,68 @@ export default function AddTransactionForm({ wallets, onClose }) {
 
     const isTransfer = type === "transfer";
 
-    const { mutate: submitTransaction, isPending: loading } = useMutation({
-        mutationFn: async (formData) => {
-            if (isTransfer) {
-                await transferBetweenWallets(formData);
-            } else {
-                formData.set("type", type);
-                await createTransaction(formData);
-            }
-        },
-        onSuccess: () => {
-            // Invalidate all related caches so data syncs across pages
-            queryClient.invalidateQueries({ queryKey: ["transactions"] });
-            queryClient.invalidateQueries({ queryKey: ["wallets"] });
+    const resetForm = () => {
+        setAmountDisplay("");
+        setAmountRaw("");
+        setWalletId("");
+        setFromWalletId("");
+        setToWalletId("");
+        setCategory("");
+        setDescription("");
+        if (onClose) onClose();
+    };
 
-            setAmountDisplay("");
-            setAmountRaw("");
-            setWalletId("");
-            setFromWalletId("");
-            setToWalletId("");
-            setCategory("");
-            setDescription("");
+    const createTx = useCreateTransaction();
+    const transferTx = useTransfer();
 
-            toast.success("Transaksi berhasil disimpan.");
-
-            if (onClose) {
-                onClose();
-            }
-        },
-        onError: (err) => {
-            toast.error(err.message || "Gagal menyimpan transaksi");
-        },
-    });
+    const loading = createTx.isPending || transferTx.isPending;
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const formData = new FormData(e.target);
-        submitTransaction(formData);
+        const amount = parseInt(amountRaw, 10);
+        if (!amount || isNaN(amount)) {
+            toast.error("Jumlah harus valid");
+            return;
+        }
+
+        if (isTransfer) {
+            if (!fromWalletId || !toWalletId) {
+                toast.error("Pilih dompet asal dan tujuan");
+                return;
+            }
+            if (fromWalletId === toWalletId) {
+                toast.error("Tidak bisa transfer ke dompet yang sama");
+                return;
+            }
+            transferTx.mutate(
+                {
+                    fromWalletId,
+                    toWalletId,
+                    amount,
+                    description: description || "Transfer antar dompet",
+                },
+                {
+                    onSuccess: resetForm,
+                }
+            );
+        } else {
+            if (!walletId) {
+                toast.error("Pilih dompet");
+                return;
+            }
+            createTx.mutate(
+                {
+                    walletId,
+                    type,
+                    category: category || "Lainnya",
+                    amount,
+                    description: description || undefined,
+                },
+                {
+                    onSuccess: resetForm,
+                }
+            );
+        }
     };
 
     const typeButtons = [

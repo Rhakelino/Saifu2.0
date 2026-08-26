@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createWallet, updateWallet } from "@/actions/wallet-actions";
+import { useEffect } from "react";
+import { useCreateWallet, useUpdateWallet } from "@/hooks/useWallets";
 import { X, Wallet } from "lucide-react";
 
 export default function WalletModal({ wallet, onClose }) {
-    const queryClient = useQueryClient();
     const isEdit = !!wallet;
 
     useEffect(() => {
@@ -17,25 +15,36 @@ export default function WalletModal({ wallet, onClose }) {
         return () => document.removeEventListener("keydown", handleEscape);
     }, [onClose]);
 
-    const { mutate: submitWallet, isPending: loading } = useMutation({
-        mutationFn: async (formData) => {
-            if (isEdit) {
-                formData.set("id", wallet.id);
-                await updateWallet(formData);
-            } else {
-                await createWallet(formData);
-            }
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["wallets"] });
-            onClose();
-        },
-    });
+    const createWalletMutation = useCreateWallet();
+    const updateWalletMutation = useUpdateWallet();
+
+    const loading = createWalletMutation.isPending || updateWalletMutation.isPending;
 
     const handleSubmit = (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
-        submitWallet(formData);
+        const name = formData.get("name");
+        const type = formData.get("type");
+
+        if (isEdit) {
+            updateWalletMutation.mutate(
+                { walletId: wallet.id, data: { name, type } },
+                {
+                    onSuccess: () => {
+                        onClose();
+                    },
+                }
+            );
+        } else {
+            createWalletMutation.mutate(
+                { name, type },
+                {
+                    onSuccess: () => {
+                        onClose();
+                    },
+                }
+            );
+        }
     };
 
     return (

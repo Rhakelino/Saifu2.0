@@ -2,8 +2,7 @@
 
 import { Wallet, CreditCard, Banknote, Smartphone, MoreVertical, Trash2, Edit } from "lucide-react";
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteWallet } from "@/actions/wallet-actions";
+import { useDeleteWallet } from "@/hooks/useWallets";
 
 const typeIcons = {
     bank: CreditCard,
@@ -24,7 +23,6 @@ const typeStyles = {
 };
 
 export default function WalletCard({ wallet, onEdit }) {
-    const queryClient = useQueryClient();
     const [menuOpen, setMenuOpen] = useState(false);
     const Icon = typeIcons[wallet.type] || Wallet;
     const style = typeStyles[wallet.type] || typeStyles.ewallet;
@@ -36,18 +34,15 @@ export default function WalletCard({ wallet, onEdit }) {
             minimumFractionDigits: 0,
         }).format(amount);
 
-    const { mutate: doDelete } = useMutation({
-        mutationFn: () => deleteWallet(wallet.id),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["wallets"] });
-            queryClient.invalidateQueries({ queryKey: ["transactions"] });
-            setMenuOpen(false);
-        },
-    });
+    const deleteWalletMutation = useDeleteWallet();
 
     const handleDelete = () => {
         if (confirm(`Hapus dompet "${wallet.name}"? Semua transaksi akan ikut terhapus.`)) {
-            doDelete();
+            deleteWalletMutation.mutate(wallet.id, {
+                onSuccess: () => {
+                    setMenuOpen(false);
+                },
+            });
         }
     };
 

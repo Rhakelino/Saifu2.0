@@ -1,15 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateTransaction, deleteTransaction } from "@/actions/transaction-actions";
+import { useUpdateTransaction, useDeleteTransaction } from "@/hooks/useTransactions";
 import { X, Trash2, Edit3 } from "lucide-react";
 import { toast } from "sonner";
 import { createPortal } from "react-dom";
 import ConfirmDialog from "./ConfirmDialog";
 
 export default function EditTransactionModal({ transaction, onClose }) {
-    const queryClient = useQueryClient();
     const [amountDisplay, setAmountDisplay] = useState(
         new Intl.NumberFormat("id-ID").format(transaction.amount)
     );
@@ -31,50 +29,54 @@ export default function EditTransactionModal({ transaction, onClose }) {
         setAmountDisplay(formatNumber(e.target.value));
     };
 
-    const { mutate: doDelete, isPending: deleteLoading } = useMutation({
-        mutationFn: () => deleteTransaction(transaction.id),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["transactions"] });
-            queryClient.invalidateQueries({ queryKey: ["wallets"] });
-            toast.success("Transaksi berhasil dihapus.");
-            onClose();
-        },
-        onError: (err) => {
-            toast.error(err.message || "Gagal menghapus transaksi.");
-        },
-        onSettled: () => {
-            setIsConfirmOpen(false);
-        },
-    });
+    const updateTx = useUpdateTransaction();
+    const deleteTx = useDeleteTransaction();
 
-    const { mutate: doUpdate, isPending: updateLoading } = useMutation({
-        mutationFn: (formData) => updateTransaction(formData),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["transactions"] });
-            queryClient.invalidateQueries({ queryKey: ["wallets"] });
-            toast.success("Perubahan transaksi disimpan.");
-            onClose();
-        },
-        onError: (err) => {
-            toast.error(err.message || "Gagal menyimpan perubahan");
-        },
-    });
-
-    const loading = deleteLoading || updateLoading;
+    const loading = deleteTx.isPending || updateTx.isPending;
 
     const handleDelete = () => {
         setIsConfirmOpen(true);
     };
 
     const confirmDelete = () => {
-        doDelete();
+        deleteTx.mutate(transaction.id, {
+            onSuccess: () => {
+                setIsConfirmOpen(false);
+                onClose();
+            },
+            onSettled: () => {
+                setIsConfirmOpen(false);
+            },
+        });
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        const amount = parseInt(amountRaw, 10);
+        if (!amount || isNaN(amount)) {
+            toast.error("Jumlah tidak valid");
+            return;
+        }
+
         const formData = new FormData(e.target);
-        formData.append("transactionId", transaction.id);
-        doUpdate(formData);
+        const category = formData.get("category");
+        const description = formData.get("description");
+
+        updateTx.mutate(
+            {
+                transactionId: transaction.id,
+                data: {
+                    amount,
+                    category: category || "Lainnya",
+                    description: description || null,
+                },
+            },
+            {
+                onSuccess: () => {
+                    onClose();
+                },
+            }
+        );
     };
 
     if (typeof document === "undefined") return null;
