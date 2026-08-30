@@ -1,7 +1,7 @@
 import { createAuthClient } from "better-auth/react";
 
 function getSessionToken() {
-    if (typeof document === "undefined") return null;
+    if (typeof document === "undefined") return "";
     const cookies = document.cookie.split(";").map((c) => c.trim());
     for (const cookie of cookies) {
         for (const prefix of ["__Secure-better-auth.session_token=", "better-auth.session_token="]) {
@@ -10,21 +10,16 @@ function getSessionToken() {
             }
         }
     }
-    return null;
+    return "";
 }
 
 export const authClient = createAuthClient({
     baseURL: process.env.NEXT_PUBLIC_BACKEND_URL || "https://saifu-backend.instanclay.workers.dev",
     fetchOptions: {
         credentials: "include",
-        onRequest(ctx) {
-            const token = getSessionToken();
-            if (token) {
-                ctx.options.headers = {
-                    ...ctx.options.headers,
-                    Authorization: `Bearer ${token}`,
-                };
-            }
+        auth: {
+            type: "Bearer",
+            token: () => getSessionToken(),
         },
     },
 });
