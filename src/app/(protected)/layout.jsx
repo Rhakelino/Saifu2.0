@@ -18,7 +18,12 @@ export default function ProtectedLayout({ children }) {
         const params = new URLSearchParams(window.location.search);
         const token = params.get("session_token");
         if (token) {
-            document.cookie = `better-auth.session_token=${token};path=/;max-age=${60 * 60 * 24 * 30};samesite=lax`;
+            const decoded = decodeURIComponent(token);
+            const isSecure = window.location.protocol === "https:";
+            const cookieName = isSecure ? "__Secure-better-auth.session_token" : "better-auth.session_token";
+            const secure = isSecure ? ";secure" : "";
+            document.cookie = `${cookieName}=${decoded};path=/;max-age=${60 * 60 * 24 * 30};samesite=lax${secure}`;
+            document.cookie = `better-auth.session_token=${decoded};path=/;max-age=${60 * 60 * 24 * 30};samesite=lax`;
             const url = new URL(window.location.href);
             url.searchParams.delete("session_token");
             window.location.replace(url.pathname);
