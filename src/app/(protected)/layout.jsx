@@ -2,7 +2,7 @@
 
 import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
 import OfflineBanner from "@/components/OfflineBanner";
@@ -12,14 +12,28 @@ import { DashboardSkeleton } from "@/components/LoadingSkeleton";
 export default function ProtectedLayout({ children }) {
     const { data: session, isPending } = useSession();
     const router = useRouter();
+    const [tokenHandled, setTokenHandled] = useState(false);
 
     useEffect(() => {
-        if (!isPending && !session) {
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get("session_token");
+        if (token) {
+            document.cookie = `better-auth.session_token=${token};path=/;max-age=${60 * 60 * 24 * 30};samesite=lax`;
+            const url = new URL(window.location.href);
+            url.searchParams.delete("session_token");
+            window.location.replace(url.pathname);
+            return;
+        }
+        setTokenHandled(true);
+    }, []);
+
+    useEffect(() => {
+        if (tokenHandled && !isPending && !session) {
             router.replace("/");
         }
-    }, [session, isPending, router]);
+    }, [session, isPending, router, tokenHandled]);
 
-    if (isPending || !session) {
+    if (!tokenHandled || isPending || !session) {
         return <DashboardSkeleton />;
     }
 
