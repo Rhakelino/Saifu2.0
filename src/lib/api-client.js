@@ -10,6 +10,28 @@ const apiClient = axios.create({
   },
 });
 
+function getSessionToken() {
+  if (typeof document === "undefined") return null;
+  const cookies = document.cookie.split(";").map((c) => c.trim());
+  for (const cookie of cookies) {
+    if (cookie.startsWith("better-auth.session_token=")) {
+      return cookie.split("=").slice(1).join("=");
+    }
+    if (cookie.startsWith("__Secure-better-auth.session_token=")) {
+      return cookie.split("=").slice(1).join("=");
+    }
+  }
+  return null;
+}
+
+apiClient.interceptors.request.use((config) => {
+  const token = getSessionToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 // =====================
 // Auth Endpoints
 // =====================
@@ -54,7 +76,7 @@ export async function getSession() {
 
 export async function getWallets() {
   const response = await apiClient.get("/api/wallets");
-  return response.data;
+  return response.data?.data || response.data || [];
 }
 
 export async function createWallet(data) {
@@ -80,7 +102,7 @@ export async function getTransactions(walletId) {
   const response = await apiClient.get("/api/transactions", {
     params: walletId ? { walletId } : {},
   });
-  return response.data;
+  return response.data?.data || response.data || [];
 }
 
 export async function createTransaction(data) {

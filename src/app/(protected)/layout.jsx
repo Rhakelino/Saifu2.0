@@ -1,15 +1,26 @@
-import { getSession } from "@/lib/session";
-import { redirect } from "next/navigation";
+"use client";
+
+import { useSession } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
 import OfflineBanner from "@/components/OfflineBanner";
 import InstallPrompt from "@/components/InstallPrompt";
+import { DashboardSkeleton } from "@/components/LoadingSkeleton";
 
-export default async function ProtectedLayout({ children }) {
-    const session = await getSession();
+export default function ProtectedLayout({ children }) {
+    const { data: session, isPending } = useSession();
+    const router = useRouter();
 
-    if (!session) {
-        redirect("/");
+    useEffect(() => {
+        if (!isPending && !session) {
+            router.replace("/");
+        }
+    }, [session, isPending, router]);
+
+    if (isPending || !session) {
+        return <DashboardSkeleton />;
     }
 
     return (

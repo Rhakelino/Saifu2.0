@@ -13,6 +13,7 @@ export default function FinanceChart({ transactions }) {
     const [period, setPeriod] = useState("7d");
 
     const data = useMemo(() => {
+        const safeTransactions = Array.isArray(transactions) ? transactions : [];
         const now = new Date();
         now.setHours(23, 59, 59, 999);
 
@@ -26,7 +27,7 @@ export default function FinanceChart({ transactions }) {
                 const label = dayNames[d.getDay()];
                 days.push({ key, label, income: 0, expense: 0 });
             }
-            transactions?.forEach((t) => {
+            safeTransactions.forEach((t) => {
                 const txDate = new Date(t.createdAt).toISOString().slice(0, 10);
                 const day = days.find((d) => d.key === txDate);
                 if (day) {
@@ -46,7 +47,7 @@ export default function FinanceChart({ transactions }) {
                 const label = `${d.getDate()}/${d.getMonth() + 1}`;
                 days.push({ key, label, income: 0, expense: 0 });
             }
-            transactions?.forEach((t) => {
+            safeTransactions.forEach((t) => {
                 const txDate = new Date(t.createdAt).toISOString().slice(0, 10);
                 const day = days.find((d) => d.key === txDate);
                 if (day) {
@@ -65,7 +66,7 @@ export default function FinanceChart({ transactions }) {
                 const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
                 months.push({ key, label: monthNames[d.getMonth()], income: 0, expense: 0 });
             }
-            transactions?.forEach((t) => {
+            safeTransactions.forEach((t) => {
                 const d = new Date(t.createdAt);
                 const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
                 const month = months.find((m) => m.key === key);

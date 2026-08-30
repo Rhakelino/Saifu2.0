@@ -39,8 +39,11 @@ export default function WalletPageClient({
         setEditWallet(null);
     };
 
+    const safeWallets = Array.isArray(wallets) ? wallets : [];
+    const safeTransactions = Array.isArray(transactions) ? transactions : [];
+
     const walletMap = {};
-    wallets.forEach((w) => (walletMap[w.id] = w.name));
+    safeWallets.forEach((w) => (walletMap[w.id] = w.name));
 
     return (
         <div key={animKey} className="animate-fade-in max-w-2xl mx-auto flex flex-col gap-6">
@@ -77,7 +80,7 @@ export default function WalletPageClient({
             </div>
 
             {/* Wallets Grid */}
-            {wallets.length === 0 ? (
+            {safeWallets.length === 0 ? (
                 <div className="rounded-xl border-2 border-dashed border-zinc-800 p-12 flex flex-col items-center text-center">
                     <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center mb-4">
                         <Wallet className="w-6 h-6 text-zinc-600" />
@@ -96,7 +99,7 @@ export default function WalletPageClient({
                 </div>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {wallets.map((wallet, i) => (
+                    {safeWallets.map((wallet, i) => (
                         <div
                             key={wallet.id}
                             className="animate-fade-in"
@@ -112,14 +115,14 @@ export default function WalletPageClient({
             <CategoryPieChart transactions={transactions} />
 
             {/* Transactions list */}
-            {transactions.length > 0 && (
+            {safeTransactions.length > 0 && (
                 <div className="rounded-xl border border-zinc-800 bg-zinc-900 overflow-hidden">
                     <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800">
                         <h3 className="text-sm font-semibold text-zinc-100">Semua Transaksi</h3>
-                        <span className="text-xs text-zinc-600">{transactions.length} data</span>
+                        <span className="text-xs text-zinc-600">{safeTransactions.length} data</span>
                     </div>
                     <div className="divide-y divide-zinc-800/60">
-                        {transactions.map((t) => (
+                        {safeTransactions.map((t) => (
                             <TransactionItem
                                 key={t.id}
                                 transaction={t}

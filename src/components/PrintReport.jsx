@@ -43,8 +43,11 @@ export default function PrintReport({
         year: "numeric",
     }).format(new Date());
 
+    const safeWallets = Array.isArray(wallets) ? wallets : [];
+    const safeTransactions = Array.isArray(transactions) ? transactions : [];
+
     const walletMap = {};
-    wallets.forEach((w) => (walletMap[w.id] = w.name));
+    safeWallets.forEach((w) => (walletMap[w.id] = w.name));
 
     const handlePrint = () => {
         const content = printRef.current;
@@ -330,7 +333,7 @@ export default function PrintReport({
 
                         {/* Table */}
                         <div className="table-section">
-                            <h2>Rincian Transaksi ({transactions.length} data)</h2>
+                            <h2>Rincian Transaksi ({safeTransactions.length} data)</h2>
                             <table>
                                 <thead>
                                     <tr>
@@ -343,7 +346,7 @@ export default function PrintReport({
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {transactions.map((t, i) => (
+                                    {safeTransactions.map((t, i) => (
                                         <tr key={t.id}>
                                             <td>{i + 1}</td>
                                             <td>{formatDateShort(t.createdAt)}</td>

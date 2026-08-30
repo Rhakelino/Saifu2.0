@@ -26,10 +26,13 @@ export default function DashboardClient({
             minimumFractionDigits: 0,
         }).format(amount);
 
-    const walletMap = {};
-    wallets.forEach((w) => (walletMap[w.id] = w.name));
+    const safeWallets = Array.isArray(wallets) ? wallets : [];
+    const safeTransactions = Array.isArray(transactions) ? transactions : [];
 
-    const recentTransactions = transactions.slice(0, 5);
+    const walletMap = {};
+    safeWallets.forEach((w) => (walletMap[w.id] = w.name));
+
+    const recentTransactions = safeTransactions.slice(0, 5);
 
     return (
         <div key={animKey} className="animate-fade-in flex flex-col gap-6 max-w-2xl mx-auto">

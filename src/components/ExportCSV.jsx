@@ -17,8 +17,11 @@ export default function ExportCSV({
     const [dateTo, setDateTo] = useState("");
     const [selectedWallet, setSelectedWallet] = useState("");
 
+    const safeWallets = Array.isArray(wallets) ? wallets : [];
+    const safeTransactions = Array.isArray(transactions) ? transactions : [];
+
     const walletMap = {};
-    wallets.forEach((w) => (walletMap[w.id] = w.name));
+    safeWallets.forEach((w) => (walletMap[w.id] = w.name));
 
     const typeLabels = {
         income: "Pemasukan",
@@ -26,7 +29,7 @@ export default function ExportCSV({
         transfer: "Transfer",
     };
 
-    const filteredTransactions = transactions.filter((t) => {
+    const filteredTransactions = safeTransactions.filter((t) => {
         const date = new Date(t.createdAt);
         if (dateFrom && date < new Date(dateFrom)) return false;
         if (dateTo) {
@@ -263,7 +266,7 @@ export default function ExportCSV({
                             className="input"
                         >
                             <option value="">Semua Dompet</option>
-                            {wallets.map((w) => (
+                            {safeWallets.map((w) => (
                                 <option key={w.id} value={w.id}>{w.name}</option>
                             ))}
                         </select>

@@ -5,12 +5,19 @@ import * as api from "@/lib/api-client";
 import { toast } from "sonner";
 
 export function useWallets() {
-  return useQuery({
+  const query = useQuery({
     queryKey: ["wallets"],
     queryFn: () => api.getWallets(),
-    staleTime: 1000 * 60 * 1, // 1 minute
+    staleTime: 1000 * 60 * 1,
     retry: 1,
   });
+
+  return {
+    wallets: query.data || [],
+    isLoading: query.isLoading,
+    error: query.error,
+    ...query,
+  };
 }
 
 export function useCreateWallet() {
